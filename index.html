@@ -1,1022 +1,2479 @@
 <!DOCTYPE html>
 <html lang="mn">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Royal Fitness Reel Content Brief</title>
-  <style>
-    :root {
-      --bg: #f6f8fc;
-      --bg-soft: #eef3fb;
-      --surface: #ffffff;
-      --surface-2: #f8fbff;
-      --text: #182133;
-      --muted: #62708a;
-      --line: #dbe4f2;
-      --brand: #4f46e5;
-      --brand-soft: #eef0ff;
-      --cyan: #06b6d4;
-      --cyan-soft: #e8fbff;
-      --green: #16a34a;
-      --green-soft: #ebfaef;
-      --amber: #d97706;
-      --amber-soft: #fff5e8;
-      --shadow-lg: 0 24px 60px rgba(43, 61, 93, 0.10);
-      --shadow-md: 0 12px 30px rgba(43, 61, 93, 0.08);
-      --radius-xl: 28px;
-      --radius-lg: 20px;
-      --radius-md: 14px;
-      --max: 1220px;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LendMN — Data Path Decomposition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F1EA;
+    --bg-card: #FAF7F1;
+    --bg-dark: #1A1815;
+    --ink: #1A1815;
+    --ink-2: #3C3A35;
+    --ink-3: #6B6860;
+    --ink-4: #A8A39A;
+    --rule: #D4CEC1;
+    --rule-dark: #2E2B26;
+    --accent: #C0512F;
+    --accent-2: #8B6914;
+    --accent-3: #2D5A3D;
+    --p1: #8B2C1F;
+    --p2: #8B6914;
+    --p3: #2D5A3D;
+    --p4: #1F4A6B;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Manrope', -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    padding: 100px 0 80px;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 40px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 60px;
+  }
+
+  .hero-meta span { display: flex; align-items: center; gap: 10px; }
+  .hero-meta .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(48px, 7vw, 88px);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 40px;
+    font-variation-settings: "opsz" 144;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    max-width: 640px;
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    margin-bottom: 60px;
+  }
+
+  /* ============ CORE LOGIC ============ */
+  .core-logic {
+    background: var(--bg-dark);
+    color: var(--bg);
+    padding: 80px 0;
+    margin: 0 -40px;
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  .core-logic-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    margin-bottom: 24px;
+  }
+
+  .core-eq {
+    display: flex;
+    align-items: baseline;
+    gap: 30px;
+    flex-wrap: wrap;
+    font-family: 'Fraunces', serif;
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    margin-bottom: 40px;
+  }
+
+  .core-eq .term {
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--accent);
+    color: var(--bg);
+  }
+
+  .core-eq .op {
+    color: var(--ink-4);
+    font-weight: 200;
+  }
+
+  .core-eq .outcome {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .core-desc {
+    max-width: 700px;
+    color: #BDB8AE;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* ============ SECTION STYLE ============ */
+  section {
+    padding: 100px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .section-header {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 60px;
+    margin-bottom: 80px;
+    align-items: start;
+  }
+
+  .section-num {
+    font-family: 'Fraunces', serif;
+    font-size: 96px;
+    font-weight: 300;
+    line-height: 0.85;
+    color: var(--path-color);
+    font-style: italic;
+    font-variation-settings: "opsz" 144;
+  }
+
+  .section-title-block h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 44px;
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+
+  .section-title-block .path-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--path-color);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .path-label::before {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: var(--path-color);
+  }
+
+  .section-desc {
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--ink-2);
+    max-width: 620px;
+  }
+
+  .section-identity {
+    margin-top: 24px;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border-left: 2px solid var(--path-color);
+    font-size: 14px;
+    color: var(--ink-2);
+    max-width: 620px;
+  }
+
+  .section-identity strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* ============ SUB-PATH CARDS ============ */
+  .subpath-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 0;
+    border-top: 1px solid var(--rule);
+    border-left: 1px solid var(--rule);
+  }
+
+  .subpath {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    background: var(--bg-card);
+    padding: 32px 28px;
+    position: relative;
+    transition: background 0.3s ease;
+  }
+
+  .subpath:hover {
+    background: #FDF9F2;
+  }
+
+  .subpath-code {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--bg);
+    background: var(--path-color);
+    padding: 4px 10px;
+    margin-bottom: 20px;
+  }
+
+  .subpath-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+  }
+
+  .subpath-desc {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    margin-bottom: 24px;
+  }
+
+  .subpath-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--rule);
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .stat-value.warn {
+    color: var(--accent);
+  }
+
+  .subpath-tag {
+    margin-top: 16px;
+    font-size: 12px;
+    font-style: italic;
+    color: var(--ink-3);
+    line-height: 1.5;
+  }
+
+  /* Path-specific colors */
+  #path-1 { --path-color: var(--p1); }
+  #path-2 { --path-color: var(--p2); }
+  #path-3 { --path-color: var(--p3); }
+  #path-4 { --path-color: var(--p4); }
+
+  /* ============ DATA TABLE FOR PATHS ============ */
+  .data-note {
+    margin-top: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .data-note::before {
+    content: '◆';
+    color: var(--path-color);
+  }
+
+  /* ============ CANDIDATE ANALYSIS (Path 2) ============ */
+  .candidate-block {
+    margin-top: 60px;
+    border-top: 1px solid var(--rule);
+    padding-top: 60px;
+  }
+
+  .candidate-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--p2);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .candidate-eyebrow::before {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: var(--p2);
+  }
+
+  .candidate-block h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+
+  .candidate-lead {
+    font-size: 15px;
+    color: var(--ink-2);
+    max-width: 700px;
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+
+  .candidate-profiles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-bottom: 40px;
+  }
+
+  @media (max-width: 768px) {
+    .candidate-profiles { grid-template-columns: 1fr; }
+  }
+
+  .candidate-card {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--cc-color);
+    padding: 32px 28px;
+  }
+
+  .candidate-card.bonum { --cc-color: var(--p2); }
+  .candidate-card.negdi { --cc-color: var(--ink-3); }
+
+  .candidate-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--rule);
+  }
+
+  .candidate-name {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .candidate-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cc-color);
+  }
+
+  .service-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .service-item {
+    padding-left: 16px;
+    border-left: 2px solid var(--cc-color);
+  }
+
+  .service-name {
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .service-desc {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    margin-bottom: 8px;
+  }
+
+  .service-pricing {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-3);
+    line-height: 1.6;
+  }
+
+  .service-pricing strong {
+    color: var(--ink);
+  }
+
+  .missing-service {
+    padding: 12px 14px;
+    background: #F5EEE5;
+    border-left: 2px solid #C0512F;
+    font-size: 12px;
+    color: var(--ink-2);
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .missing-service strong { color: var(--p1); }
+
+  .pitch-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--p2);
+    text-decoration: none;
+    padding: 10px 14px;
+    border: 1px solid var(--p2);
+    transition: background 0.2s ease;
+    margin-top: 12px;
+  }
+
+  .pitch-link:hover {
+    background: var(--p2);
+    color: var(--bg);
+  }
+
+  .pitch-link::after {
+    content: '→';
+    margin-left: 4px;
+  }
+
+  .versus-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 24px;
+  }
+
+  .versus-table th,
+  .versus-table td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+
+  .versus-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .versus-table th.bonum-col { color: var(--p2); }
+  .versus-table th.negdi-col { color: var(--ink-3); }
+
+  .versus-table td:first-child {
+    font-weight: 600;
+    color: var(--ink);
+    width: 28%;
+  }
+
+  .yes { color: var(--accent-3); font-weight: 600; }
+  .no { color: var(--p1); font-weight: 600; }
+  .weak { color: var(--accent-2); }
+
+
+  .matrix-section {
+    background: var(--bg-dark);
+    color: var(--bg);
+    padding: 100px 0;
+    margin: 0 -40px;
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  .matrix-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .matrix-section h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 48px;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    color: var(--bg);
+    margin-bottom: 16px;
+  }
+
+  .matrix-section h2 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .matrix-section .subtitle {
+    color: #BDB8AE;
+    font-size: 16px;
+    margin-bottom: 60px;
+    max-width: 600px;
+  }
+
+  .matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .matrix-table th,
+  .matrix-table td {
+    padding: 16px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--rule-dark);
+    vertical-align: top;
+  }
+
+  .matrix-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    padding-bottom: 14px;
+    border-bottom: 1px solid #4A4540;
+  }
+
+  .matrix-table td {
+    color: #D4CEC1;
+  }
+
+  .matrix-table td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--bg);
+    white-space: nowrap;
+  }
+
+  .matrix-table .num {
+    font-family: 'JetBrains Mono', monospace;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .matrix-table tr.path-row-1 td:first-child { color: #E67B6B; }
+  .matrix-table tr.path-row-2 td:first-child { color: #D4A93F; }
+  .matrix-table tr.path-row-3 td:first-child { color: #6BAF85; }
+  .matrix-table tr.path-row-4 td:first-child { color: #6BA3CC; }
+
+  /* ============ TIMELINE ============ */
+  .timeline {
+    margin-top: 40px;
+    position: relative;
+  }
+
+  .tl-phase {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 40px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+
+  .tl-phase:first-child { border-top: 1px solid var(--rule); }
+
+  .tl-marker {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+    padding-top: 4px;
+  }
+
+  .tl-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .tl-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    white-space: nowrap;
+  }
+
+  .tl-content { max-width: 620px; }
+
+  .tl-phase-name {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+
+  .tl-paths {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  .tl-content p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-2);
+  }
+
+  @media (max-width: 768px) {
+    .tl-phase { grid-template-columns: 1fr; gap: 12px; }
+  }
+
+
+  .closing {
+    padding: 120px 0 100px;
+    text-align: left;
+    border-bottom: none;
+  }
+
+  .closing .eyebrow {
+    color: var(--ink-3);
+    margin-bottom: 32px;
+  }
+
+  .closing h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    max-width: 850px;
+    margin-bottom: 40px;
+  }
+
+  .closing h2 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .closing p {
+    max-width: 640px;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--ink-2);
+  }
+
+  .footer {
+    padding: 40px 0;
+    border-top: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 768px) {
+    .wrap { padding: 0 24px; }
+    .section-header {
+      grid-template-columns: 1fr;
+      gap: 20px;
     }
+    .section-num { font-size: 64px; }
+    .hero-meta { flex-direction: column; gap: 8px; margin-bottom: 40px; }
+    .subpath-grid { grid-template-columns: 1fr; }
+    .core-eq { font-size: 32px; gap: 16px; }
+    .matrix-table { font-size: 11px; }
+    .matrix-table th, .matrix-table td { padding: 10px 6px; }
+  }
 
-    * { box-sizing: border-box; }
+  /* ============ TOC ============ */
+  .toc {
+    padding: 60px 0;
+    border-bottom: 1px solid var(--rule);
+  }
 
-    html {
-      scroll-behavior: smooth;
-    }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--rule);
+    border-left: 1px solid var(--rule);
+  }
 
-    body {
-      margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(79, 70, 229, 0.08), transparent 24%),
-        radial-gradient(circle at top right, rgba(6, 182, 212, 0.08), transparent 20%),
-        linear-gradient(180deg, #fbfcff 0%, #f4f7fc 100%);
-      line-height: 1.65;
-      min-height: 100vh;
-    }
+  .toc-item {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 28px 24px;
+    text-decoration: none;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: background 0.2s ease;
+    min-height: 160px;
+    justify-content: space-between;
+  }
 
-    img {
-      max-width: 100%;
-      display: block;
-    }
+  .toc-item:hover {
+    background: var(--bg-card);
+  }
 
-    .page {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 24px 20px 72px;
-    }
+  .toc-num {
+    font-family: 'Fraunces', serif;
+    font-size: 48px;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1;
+    color: var(--tc-color);
+  }
 
-    .hero {
-      position: relative;
-      overflow: hidden;
-      border-radius: 34px;
-      background: linear-gradient(135deg, rgba(79, 70, 229, 0.10), rgba(6, 182, 212, 0.08), rgba(255, 255, 255, 0.92));
-      border: 1px solid rgba(255,255,255,0.85);
-      box-shadow: var(--shadow-lg);
-      padding: 38px;
-      margin-bottom: 20px;
-    }
+  .toc-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--ink);
+  }
 
-    .hero::before {
-      content: "";
-      position: absolute;
-      right: -60px;
-      top: -60px;
-      width: 220px;
-      height: 220px;
-      border-radius: 999px;
-      background: radial-gradient(circle, rgba(79, 70, 229, 0.12), transparent 70%);
-      pointer-events: none;
-    }
+  .toc-subs {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
 
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.72);
-      border: 1px solid rgba(79, 70, 229, 0.10);
-      color: var(--brand);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 18px;
-    }
+  .toc-item[data-path="1"] { --tc-color: var(--p1); }
+  .toc-item[data-path="2"] { --tc-color: var(--p2); }
+  .toc-item[data-path="3"] { --tc-color: var(--p3); }
+  .toc-item[data-path="4"] { --tc-color: var(--p4); }
 
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.45fr 0.95fr;
-      gap: 24px;
-      align-items: end;
-    }
+  @media (max-width: 768px) {
+    .toc-grid { grid-template-columns: 1fr 1fr; }
+  }
 
-    h1 {
-      margin: 0;
-      font-size: clamp(2rem, 4vw, 4rem);
-      line-height: 1.04;
-      letter-spacing: -0.045em;
-      max-width: 800px;
-    }
+  /* ============ INTERACTIVE CALCULATOR PANEL ============ */
+  .calc-toggle {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 200;
+    background: var(--ink);
+    color: var(--bg);
+    border: 1px solid var(--ink);
+    padding: 12px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    transition: background 0.2s ease;
+  }
 
-    .hero p {
-      margin: 16px 0 0;
-      color: var(--muted);
-      font-size: 1.04rem;
-      max-width: 760px;
-    }
+  .calc-toggle:hover { background: var(--accent); border-color: var(--accent); }
 
-    .hero-stats {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-    }
+  .calc-toggle .calc-icon {
+    width: 14px;
+    height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--bg);
+    border-radius: 2px;
+    font-size: 10px;
+    font-weight: bold;
+  }
 
-    .stat {
-      background: rgba(255,255,255,0.82);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(79, 70, 229, 0.10);
-      border-radius: 20px;
-      padding: 18px;
-      min-height: 110px;
-      box-shadow: var(--shadow-md);
-    }
+  .calc-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    max-width: 90vw;
+    height: 100vh;
+    background: var(--bg-card);
+    border-left: 1px solid var(--rule);
+    z-index: 300;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+  }
 
-    .stat strong {
-      display: block;
-      font-size: 1.8rem;
-      line-height: 1;
-      letter-spacing: -0.03em;
-      margin-bottom: 8px;
-      color: var(--text);
-    }
+  .calc-panel.open { transform: translateX(0); }
 
-    .stat span {
-      color: var(--muted);
-      font-size: 0.94rem;
-    }
+  .calc-panel-head {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: var(--bg-card);
+    z-index: 10;
+  }
 
-    .flow-note {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 18px 0 28px;
-    }
+  .calc-panel-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
 
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+  .calc-panel-close {
+    background: transparent;
+    border: 1px solid var(--rule);
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--ink-2);
+    transition: all 0.2s ease;
+  }
+
+  .calc-panel-close:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  .calc-panel-body { padding: 20px 28px 40px; }
+
+  .calc-group { margin-bottom: 28px; }
+
+  .calc-group-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .calc-field {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 0;
+  }
+
+  .calc-field label {
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1.4;
+  }
+
+  .calc-field label small {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-3);
+    margin-top: 2px;
+  }
+
+  .calc-field input[type="number"] {
+    width: 100px;
+    padding: 8px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: right;
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    transition: border-color 0.15s ease;
+  }
+
+  .calc-field input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: #FFFDF9;
+  }
+
+  .calc-field .unit {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-left: 4px;
+  }
+
+  .calc-reset {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    background: transparent;
+    border: 1px solid var(--ink-3);
+    color: var(--ink-2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .calc-reset:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  .calc-derived {
+    margin-top: 24px;
+    padding: 16px;
+    background: var(--bg-dark);
+    color: var(--bg);
+  }
+
+  .calc-derived-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    margin-bottom: 12px;
+  }
+
+  .calc-derived-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 12px;
+    color: #BDB8AE;
+    border-bottom: 1px solid #2E2B26;
+  }
+
+  .calc-derived-row:last-child { border-bottom: none; }
+
+  .calc-derived-row strong {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--bg);
+    font-weight: 600;
+  }
+
+  .calc-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 24, 21, 0.4);
+    z-index: 250;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .calc-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Recalc pulse animation */
+  [data-calc] {
+    transition: background 0.3s ease;
+  }
+  [data-calc].pulse {
+    background: rgba(192, 81, 47, 0.15);
+  }
+
+  @media (max-width: 480px) {
+    .calc-toggle { top: 16px; right: 16px; padding: 10px 14px; font-size: 10px; }
+    .calc-panel { width: 100vw; }
+  }
+
+
+  /* ============ SUBPATH EXPENSE/REVENUE BLOCKS ============ */
+  .subpath-body {
+    margin-top: 16px;
+  }
+
+  .er-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  @media (max-width: 640px) {
+    .er-grid { grid-template-columns: 1fr; }
+  }
+
+  .er-block {
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    padding: 14px 14px 10px;
+  }
+
+  .er-block.expenses { border-top: 2px solid var(--p1); }
+  .er-block.revenue { border-top: 2px solid var(--accent-3); }
+
+  .er-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--rule);
+  }
+
+  .er-block.expenses .er-title { color: var(--p1); }
+  .er-block.revenue .er-title { color: var(--accent-3); }
+
+  .er-line {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 12px;
+    line-height: 1.4;
+    align-items: baseline;
+  }
+
+  .er-line-header {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8px;
+    padding: 2px 0 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .er-line-header .er-col-amt {
+    text-align: right;
+    min-width: 60px;
+  }
+
+  .er-label {
+    color: var(--ink-2);
+  }
+
+  .er-label small {
+    display: block;
+    font-size: 10px;
+    color: var(--ink-3);
+    line-height: 1.3;
+    margin-top: 2px;
+    font-style: italic;
+  }
+
+  .er-amt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    text-align: right;
+    min-width: 60px;
+    white-space: nowrap;
+  }
+
+  .er-amt.zero { color: var(--ink-4); }
+  .er-amt.neg { color: var(--p1); }
+  .er-amt.capital {
+    color: var(--p1);
+    background: #F5E5DD;
+    padding: 0 4px;
+  }
+
+  .er-total {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8px;
+    padding: 8px 0 4px;
+    margin-top: 6px;
+    border-top: 1px solid var(--rule);
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .er-block.expenses .er-total { color: var(--p1); }
+  .er-block.revenue .er-total { color: var(--accent-3); }
+
+  .er-total .er-amt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .er-block.expenses .er-total .er-amt { color: var(--p1); }
+  .er-block.revenue .er-total .er-amt { color: var(--accent-3); }
+
+  .er-net {
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: var(--ink);
+    color: var(--bg);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: baseline;
+  }
+
+  .er-net-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+  }
+
+  .er-net-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--bg);
+  }
+
+  .er-net-value.positive { color: #7FC79F; }
+  .er-net-value.negative { color: #E67B6B; }
+
+  /* Local inputs (per-subpath toggle) */
+  .local-inputs-bar {
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1px dashed var(--rule);
+  }
+
+  .local-inputs-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--path-color);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .local-inputs-title::before {
+    content: '▸';
+    transition: transform 0.2s ease;
+    color: var(--path-color);
+  }
+
+  .local-inputs-bar.open .local-inputs-title::before {
+    transform: rotate(90deg);
+  }
+
+  .local-inputs-grid {
+    display: none;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+
+  .local-inputs-bar.open .local-inputs-grid {
+    display: grid;
+  }
+
+  .local-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .local-field label {
+    font-size: 10px;
+    color: var(--ink-3);
+    line-height: 1.2;
+  }
+
+  .local-field input {
+    padding: 6px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    text-align: right;
+    transition: border-color 0.15s ease;
+  }
+
+  .local-field input:focus {
+    outline: none;
+    border-color: var(--path-color);
+  }
+
+  .local-field .unit {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--ink-3);
+    margin-top: 2px;
+  }
+
+  /* ============ GLOBAL STICKY INPUT BAR ============ */
+  .global-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--ink);
+    color: var(--bg);
+    padding: 12px 20px;
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-top: 1px solid var(--rule-dark);
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.2);
+    flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+  }
+
+  .global-bar.hidden { transform: translateY(100%); }
+
+  .global-bar-label {
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    font-size: 9px;
+    margin-right: 6px;
+  }
+
+  .global-field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: #2E2B26;
+    border: 1px solid #4A4540;
+  }
+
+  .global-field label {
+    font-size: 10px;
+    color: #BDB8AE;
+    letter-spacing: 0.05em;
+  }
+
+  .global-field input {
+    width: 70px;
+    padding: 3px 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: right;
+    color: var(--bg);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid transparent;
+  }
+
+  .global-field input:focus {
+    outline: none;
+    border-bottom-color: var(--accent);
+  }
+
+  .global-field .unit {
+    font-size: 9px;
+    color: var(--ink-4);
+  }
+
+  .global-reset {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid #4A4540;
+    color: #BDB8AE;
+    padding: 5px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .global-reset:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+  }
+
+  body { padding-bottom: 70px; }
+
+  @media (max-width: 768px) {
+    .global-bar {
       padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.82);
-      border: 1px solid var(--line);
-      color: var(--text);
-      font-size: 0.92rem;
-      font-weight: 600;
-      box-shadow: 0 8px 20px rgba(43, 61, 93, 0.05);
+      gap: 8px;
+      font-size: 9px;
     }
+    .global-field { padding: 3px 8px; }
+    .global-field input { width: 55px; font-size: 10px; }
+    body { padding-bottom: 120px; }
+  }
 
-    .content {
-      display: grid;
-      gap: 22px;
-    }
-
-    .section {
-      background: rgba(255,255,255,0.92);
-      border: 1px solid rgba(219, 228, 242, 0.95);
-      border-radius: var(--radius-xl);
-      padding: 30px;
-      box-shadow: var(--shadow-md);
-    }
-
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-
-    .section-kicker {
-      display: inline-flex;
-      align-items: center;
-      padding: 7px 11px;
-      border-radius: 999px;
-      background: var(--brand-soft);
-      color: var(--brand);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    h2 {
-      margin: 0;
-      font-size: clamp(1.45rem, 2vw, 2.2rem);
-      letter-spacing: -0.035em;
-      line-height: 1.1;
-    }
-
-    h3, h4 {
-      margin-top: 0;
-      letter-spacing: -0.025em;
-    }
-
-    p {
-      margin-top: 0;
-    }
-
-    .muted {
-      color: var(--muted);
-    }
-
-    .grid-2,
-    .grid-3,
-    .grid-4 {
-      display: grid;
-      gap: 16px;
-    }
-
-    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-
-    .card,
-    .soft-card,
-    .quote,
-    .cta-box,
-    .table-wrap {
-      border-radius: 22px;
-      border: 1px solid var(--line);
-      background: var(--surface);
-    }
-
-    .card,
-    .soft-card,
-    .quote,
-    .cta-box {
-      padding: 20px;
-    }
-
-    .soft-card {
-      background: var(--surface-2);
-    }
-
-    .quote {
-      position: relative;
-      padding-left: 24px;
-      background: linear-gradient(180deg, #ffffff, #fbfdff);
-    }
-
-    .quote::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 18px;
-      bottom: 18px;
-      width: 5px;
-      border-radius: 999px;
-      background: linear-gradient(180deg, var(--brand), var(--cyan));
-    }
-
-    .list,
-    .check-list,
-    .question-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: grid;
-      gap: 10px;
-    }
-
-    .list li,
-    .check-list li,
-    .question-list li {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      padding: 11px 12px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: #fff;
-      color: var(--muted);
-    }
-
-    .list li::before,
-    .check-list li::before,
-    .question-list li::before {
-      flex: 0 0 auto;
-      display: inline-grid;
-      place-items: center;
-      width: 22px;
-      height: 22px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      margin-top: 1px;
-    }
-
-    .list li::before { content: "•"; background: var(--brand-soft); color: var(--brand); }
-    .check-list li::before { content: "✓"; background: var(--green-soft); color: var(--green); }
-    .question-list li::before { content: "?"; background: var(--cyan-soft); color: var(--cyan); }
-
-    .process {
-      display: grid;
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    .step {
-      display: grid;
-      grid-template-columns: 36px minmax(0, 1fr);
-      gap: 12px;
-      padding: 14px;
-      border-radius: 16px;
-      background: #fff;
-      border: 1px solid var(--line);
-    }
-
-    .step-num {
-      width: 36px;
-      height: 36px;
-      display: grid;
-      place-items: center;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--brand-soft), var(--cyan-soft));
-      color: var(--brand);
-      font-weight: 800;
-    }
-
-    .step strong {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--text);
-    }
-
-    .version {
-      position: relative;
-      overflow: hidden;
-      border-radius: 26px;
-      padding: 22px;
-      background: linear-gradient(180deg, #ffffff, #f9fbff);
-      border: 1px solid var(--line);
-      box-shadow: 0 14px 35px rgba(43, 61, 93, 0.06);
-    }
-
-    .version::after {
-      content: "";
-      position: absolute;
-      right: -40px;
-      bottom: -40px;
-      width: 140px;
-      height: 140px;
-      border-radius: 999px;
-      opacity: 0.9;
-      pointer-events: none;
-    }
-
-    .v1::after { background: radial-gradient(circle, rgba(79, 70, 229, 0.10), transparent 70%); }
-    .v2::after { background: radial-gradient(circle, rgba(6, 182, 212, 0.12), transparent 70%); }
-    .v3::after { background: radial-gradient(circle, rgba(22, 163, 74, 0.10), transparent 70%); }
-
-    .version-tag {
-      display: inline-flex;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 14px;
-    }
-
-    .v1 .version-tag { background: var(--brand-soft); color: var(--brand); }
-    .v2 .version-tag { background: var(--cyan-soft); color: var(--cyan); }
-    .v3 .version-tag { background: var(--green-soft); color: var(--green); }
-
-    .meta-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 16px 0 18px;
-    }
-
-    .pill {
-      display: inline-flex;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: #fff;
-      border: 1px solid var(--line);
-      color: var(--text);
-      font-size: 0.86rem;
-      font-weight: 600;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-      background: #fff;
-    }
-
-    table {
-      width: 100%;
-      min-width: 760px;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      padding: 15px 16px;
-      border-bottom: 1px solid var(--line);
-      text-align: left;
-      vertical-align: top;
-    }
-
-    th {
-      background: #f8fbff;
-      color: var(--text);
-      font-size: 0.84rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    .chip-cloud {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .chip.soft-brand { background: var(--brand-soft); color: var(--brand); border-color: transparent; }
-    .chip.soft-cyan { background: var(--cyan-soft); color: var(--cyan); border-color: transparent; }
-    .chip.soft-green { background: var(--green-soft); color: var(--green); border-color: transparent; }
-    .chip.soft-amber { background: var(--amber-soft); color: var(--amber); border-color: transparent; }
-
-    .music-card.good {
-      background: linear-gradient(180deg, #ffffff, #f9feff);
-    }
-
-    .music-card.warn {
-      background: linear-gradient(180deg, #fffaf3, #fffdf9);
-    }
-
-    .cta-box {
-      background: linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(6, 182, 212, 0.06), #ffffff);
-      display: grid;
-      gap: 14px;
-    }
-
-    .button-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 16px;
-      border-radius: 14px;
-      background: #fff;
-      color: var(--text);
-      border: 1px solid var(--line);
-      font-weight: 700;
-      box-shadow: 0 8px 18px rgba(43, 61, 93, 0.05);
-    }
-
-    .button.primary {
-      background: linear-gradient(135deg, var(--brand), #6972ff);
-      color: white;
-      border: none;
-    }
-
-    .footer {
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.92rem;
-      margin-top: 20px;
-    }
-
-    @media (max-width: 1080px) {
-      .hero-grid,
-      .grid-4,
-      .grid-3,
-      .grid-2 {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .page {
-        padding: 16px 14px 52px;
-      }
-
-      .hero,
-      .section {
-        padding: 22px 18px;
-        border-radius: 24px;
-      }
-
-      h1 {
-        font-size: clamp(1.8rem, 8vw, 2.6rem);
-      }
-
-      h2 {
-        font-size: 1.5rem;
-      }
-
-      .hero-stats {
-        grid-template-columns: 1fr;
-      }
-
-      .flow-note {
-        gap: 8px;
-      }
-
-      .chip,
-      .pill {
-        width: 100%;
-        justify-content: flex-start;
-      }
-
-      .button-row .button {
-        width: 100%;
-      }
-
-      th, td {
-        padding: 13px 12px;
-      }
-
-      .step {
-        grid-template-columns: 32px minmax(0, 1fr);
-      }
-
-      .step-num {
-        width: 32px;
-        height: 32px;
-        border-radius: 10px;
-      }
-    }
-  </style>
+</style>
 </head>
 <body>
-  <div class="page">
-    <header class="hero">
-      <div class="hero-grid">
-        <div>
-          <div class="eyebrow">Royal Fitness • Reel Content Brief</div>
-          <h1>Үйлчлүүлэгчдийн богино хариултаар хүчтэй, хөгжилтэй, shareable reel хийх дэлгэрэнгүй шаардлага</h1>
-          <p>
-            Энэ хуудас нь Royal Fitness-ийн гишүүдээс богино асуулт асууж, олон хүний хариултыг эвлүүлэн reel болгох бүтэн production brief юм. Бүх агуулгыг menu link-гүйгээр нэг урсгалтай, дараалсан байдлаар уншихад тохирсон бүтэцтэй болгож, гэгээлэг өнгөний сонголт болон mobile responsive хэв маягаар шинэчилсэн.
-          </p>
+
+<div class="wrap">
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="hero-meta">
+      <span><span class="dot"></span>LendMN Board Strategy</span>
+      <span>Data Path Decomposition</span>
+      <span>2026</span>
+    </div>
+    <h1>Өгөгдлийг<br>хэрхэн <em>үүсгэх</em> вэ.</h1>
+    <p class="hero-sub">
+      <strong>SME Data Visibility</strong> — LendMN-ий 4 paths, and their subpaths. <em>Not a catalog of options — the foundation of strategic choice.</em>
+    </p>
+  </header>
+
+  <!-- ============ CORE LOGIC ============ -->
+</div>
+
+<section class="core-logic">
+  <div class="core-logic-inner">
+    <div class="eyebrow">§ 01 — Core Logic</div>
+    <div class="core-eq">
+      <span class="term">Data</span>
+      <span class="op">+</span>
+      <span class="term">Engine</span>
+      <span class="op">=</span>
+      <span class="outcome">Outcome</span>
+    </div>
+    <p class="core-desc">
+      Engine хэр хүчтэй байх нь Data хэр баялаг байхаас хамаарна. Иймд өнөөдрийн шийдвэр бол: <strong style="color:#F5F1EA">Data-г хэрхэн үүсгэх вэ.</strong> Доор танилцуулсан 4 зам нь энэ нэг асуултын дөрвөн өөр хариулт.
+    </p>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <!-- ============ TOC ============ -->
+  <section class="toc">
+    <div class="eyebrow" style="margin-bottom:32px;">§ 02 — Four Paths at a Glance</div>
+    <div class="toc-grid">
+      <a href="#path-1" class="toc-item" data-path="1">
+        <div class="toc-num">01</div>
+        <div class="toc-title">Direct PSP<br>(өөрсдөө rail болох)</div>
+        <div class="toc-subs">1a · 1b · 1c</div>
+      </a>
+      <a href="#path-2" class="toc-item" data-path="2">
+        <div class="toc-num">02</div>
+        <div class="toc-title">PSP M&amp;A /<br>Partnership</div>
+        <div class="toc-subs">2a · 2b · 2c · 2d</div>
+      </a>
+      <a href="#path-3" class="toc-item" data-path="3">
+        <div class="toc-num">03</div>
+        <div class="toc-title">Embedded /<br>API Integration</div>
+        <div class="toc-subs">3a · 3b · 3c · 3d · 3e · 3f · 3g</div>
+      </a>
+      <a href="#path-4" class="toc-item" data-path="4">
+        <div class="toc-num">04</div>
+        <div class="toc-title">Bank<br>Partnership</div>
+        <div class="toc-subs">4a · 4b · 4c · 4d · 4e</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ PATH 1 ============ -->
+  <section id="path-1">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-title-block">
+        <div class="path-label">Path 01 — Direct PSP</div>
+        <h2>Өөрсдөө<br>rail build хийх.</h2>
+        <p class="section-desc">
+          LendMN өөрөө BoM-аас license авч, payment rail-ээ бүтээж, ажиллуулна. Maximum control, хамгийн өндөр moat. Гэхдээ LendMN-ий core competency-ээс хол — payments өөр бизнес.
+        </p>
+        <div class="section-identity">
+          <strong>Identity:</strong> Mongolia's SME operating system — <em>own rails.</em> 100% data ownership, payment + lending bundled product. Timeline: 18–36 сар.
         </div>
-        <div class="hero-stats">
-          <div class="stat">
-            <strong>Цуврал 1</strong>
-            <span>1 reel = 1 асуулт. Хурдан, clean, safe формат.</span>
+      </div>
+    </div>
+
+    <div class="subpath-grid">
+      <div class="subpath" data-subpath="1a"><div class="subpath-code">1a</div>
+        <div class="subpath-title">Full independent license</div>
+        <div class="subpath-desc">
+          BoM-аас full PSP license авч, core gateway, AML stack, fraud engine, 20 FTE ops team-ээ өөрсдөө бүтээнэ. Хамгийн өргөн хүрээтэй, хамгийн их capital.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Upfront (Y1)</span><span class="stat-value">$1.69M</span></div>
+          <div class="stat-row"><span class="stat-label">Annual</span><span class="stat-value">$1.25M</span></div>
+          <div class="stat-row"><span class="stat-label">Timeline</span><span class="stat-value">24–36 сар</span></div>
+        </div>
+        <div class="subpath-tag">Маш өндөр moat, гэхдээ team dilution эрсдэлтэй.</div>
+      </div>
+
+      <div class="subpath" data-subpath="1b"><div class="subpath-code">1b</div>
+        <div class="subpath-title">Staged / sandbox license</div>
+        <div class="subpath-desc">
+          Limited scope (merchant acquiring only)-с эхэлж, хожим өргөжүүлнэ. Scope багасгаж эрсдэлийг хумих staged approach. Ops team 12 FTE.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Upfront (Y1)</span><span class="stat-value">$925K</span></div>
+          <div class="stat-row"><span class="stat-label">Annual</span><span class="stat-value">$750K</span></div>
+          <div class="stat-row"><span class="stat-label">Timeline</span><span class="stat-value">12–18 сар</span></div>
+        </div>
+        <div class="subpath-tag">1a-ийн ~60% scope. Learn-by-doing strategy.</div>
+      </div>
+
+      <div class="subpath" data-subpath="1c"><div class="subpath-code">1c</div>
+        <div class="subpath-title">White-label intl rail license</div>
+        <div class="subpath-desc">
+          Adyen, Stripe Connect маягийн платформын license худалдан авч, branded PSP ажиллуулна. Technology хурдан, гэхдээ royalty flow урсана.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Upfront (Y1)</span><span class="stat-value">$710K</span></div>
+          <div class="stat-row"><span class="stat-label">Annual</span><span class="stat-value">$750K</span></div>
+          <div class="stat-row"><span class="stat-label">Timeline</span><span class="stat-value">9–15 сар</span></div>
+        </div>
+        <div class="subpath-tag">Хурдан launch, vendor lock-in эрсдэлтэй.</div>
+      </div>
+    </div>
+    <div class="data-note">Дата цуглуулалт: 100% merchant-level settlement, 100% data ownership</div>
+  </section>
+
+  <!-- ============ PATH 2 ============ -->
+  <section id="path-2">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-title-block">
+        <div class="path-label">Path 02 — PSP M&amp;A / Partnership</div>
+        <h2>Одоо байгаа rail-ийг<br>худалдаж авах эсвэл<br><em>түншилэх.</em></h2>
+        <p class="section-desc">
+          Bonum, Negdi зэрэг одоогийн PSP player-ээс нэгийг сонгож, minority stake-аас majority acquisition хүртэл 4 түвшний гэрээний бүтэц. Bonum яриа чинь 2a эсвэл 2c-ийн прототайп.
+        </p>
+        <div class="section-identity">
+          <strong>Identity:</strong> Anchor rail consolidator. <em>Moat нь equity depth-аас хамаарна.</em> Rail 12–18 сарын дотор бэлэн. Merchant base өвлөнө.
+        </div>
+      </div>
+    </div>
+
+    <div class="subpath-grid">
+      <div class="subpath" data-subpath="2a"><div class="subpath-code">2a</div>
+        <div class="subpath-title">Minority stake (20–25%)</div>
+        <div class="subpath-desc">
+          Sign + optionality. Board seat, preferential data access гэрээ. Rail ownership бага, гэхдээ strategic alignment болон future escalation path нээлттэй.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Equity</span><span class="stat-value" data-calc="p2a_equity"></span></div>
+          <div class="stat-row"><span class="stat-label">Upfront total</span><span class="stat-value" data-calc="p2a_upfront"></span></div>
+          <div class="stat-row"><span class="stat-label">Annual</span><span class="stat-value">$35K</span></div>
+        </div>
+        <div class="subpath-tag">Signal deal — moat сул, гэхдээ хөрөнгө бага.</div>
+      </div>
+
+      <div class="subpath" data-subpath="2b"><div class="subpath-code">2b</div>
+        <div class="subpath-title">Majority acquisition (51%+)</div>
+        <div class="subpath-desc">
+          Full rail control. Consolidation play. PSP-ийг LendMN бүтцийн дотор тусдаа subsidiary болгон ажиллуулж, data-г уях.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Equity</span><span class="stat-value" data-calc="p2b_equity"></span></div>
+          <div class="stat-row"><span class="stat-label">Upfront total</span><span class="stat-value" data-calc="p2b_upfront"></span></div>
+          <div class="stat-row"><span class="stat-label">Annual</span><span class="stat-value">$200K</span></div>
+        </div>
+        <div class="subpath-tag">Best anchor — integration + culture risk.</div>
+      </div>
+
+      <div class="subpath" data-subpath="2c"><div class="subpath-code">2c</div>
+        <div class="subpath-title">JV 50/50 (шинэ entity)</div>
+        <div class="subpath-desc">
+          LendMN + PSP хамтарсан тусдаа payments entity. 10,000 merchant × өдөрт 1 гүйлгээ × 365 хоног = <strong>3.65M transactions/yr</strong>. Дундаж tx ~$41 (~$15K GMV/merchant / 365) → нийт GMV $150M. MDR 1.5% → GFR $2.25M. 50% партнер руу, үлдсэнээс 50% BoM/scheme руу.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Txn volume</span><span class="stat-value" data-calc="p2c_txnvol"></span></div>
+          <div class="stat-row"><span class="stat-label">GMV</span><span class="stat-value" data-calc="p2c_gmv"></span></div>
+          <div class="stat-row"><span class="stat-label">Gross fee (GFR)</span><span class="stat-value" data-calc="p2c_gfr"></span></div>
+          <div class="stat-row"><span class="stat-label">Upfront</span><span class="stat-value">$600K</span></div>
+          <div class="stat-row"><span class="stat-label">Rev share out</span><span class="stat-value" data-calc="p2c_revshare"></span></div>
+          <div class="stat-row"><span class="stat-label">LendMN net fee</span><span class="stat-value" data-calc="p2c_netfee"></span></div>
+        </div>
+        <div class="subpath-tag">25% of GFR LendMN-д үлдэнэ. Plus long-term data ownership.</div>
+      </div>
+
+      <div class="subpath" data-subpath="2d"><div class="subpath-code">2d</div>
+        <div class="subpath-title">Commercial rev-share only</div>
+        <div class="subpath-desc">
+          Equity оролцоогүй. API + revenue share гэрээ. Хамгийн хөнгөн form, хамгийн шуурхай, гэхдээ moat хамгийн нимгэн.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Upfront</span><span class="stat-value">$160K</span></div>
+          <div class="stat-row"><span class="stat-label">Rev share out</span><span class="stat-value" data-calc="p2d_revshare"></span></div>
+          <div class="stat-row"><span class="stat-label">LendMN net fee</span><span class="stat-value" data-calc="p2d_netfee"></span></div>
+        </div>
+        <div class="subpath-tag">No equity — хамгийн хурдан, хамгийн reversible.</div>
+      </div>
+    </div>
+
+    <div class="candidate-block">
+      <div class="candidate-eyebrow">Candidate Analysis — Identified Targets</div>
+      <h3>Bonum vs. Negdi.</h3>
+      <p class="candidate-lead">
+        2a–2d гэрээний бүтэц бол framework. Хэнтэй хийх вэ гэдэг асуулт бол өөр. Монголын зах зээл дээр LendMN-ий шалгуурт хамгийн тохирох хоёр нэр дэвшигч — Bonum, Negdi. Доор үйлчилгээний хамрах хүрээгээр нь задлав.
+      </p>
+
+      <div class="candidate-profiles">
+
+        <div class="candidate-card bonum">
+          <div class="candidate-card-head">
+            <div class="candidate-name">Bonum</div>
+            <div class="candidate-status">◆ Primary target</div>
           </div>
-          <div class="stat">
-            <strong>Цуврал 2</strong>
-            <span>1 reel = 2 асуулт. Илүү хөгжилтэй, engagement өндөр.</span>
+          <div class="service-list">
+            <div class="service-item">
+              <div class="service-name">CaaS — Mastercard issue (Apple Pay, Google Pay)</div>
+              <div class="service-desc">Virtual + physical card, Apple/Google Pay шууд холболт. Lend Anywhere (open-loop BNPL) боломж нээнэ.</div>
+              <div class="service-pricing">Setup <strong>55M₮</strong> · Card annual <strong>33K₮</strong> · Per-tx <strong>150₮</strong></div>
+            </div>
+            <div class="service-item">
+              <div class="service-name">SoftPOS — утас = POS</div>
+              <div class="service-desc">Ухаалаг утсаар tap-to-pay. Hardware zero cost, бичил мерчант instant onboarding, merchant cash advance-ын дата.</div>
+              <div class="service-pricing">Merchant monthly <strong>5K₮</strong> · Bonum take <strong>0.6%</strong> (LendMN margin 0.4–0.9%)</div>
+            </div>
+            <div class="service-item">
+              <div class="service-name">Payment Gateway</div>
+              <div class="service-desc">Нэгдсэн API — QPay, карт, SocialPay бүгдийг нэг холболтоор. Card-on-File tokenization, Pay-by-Link social commerce.</div>
+              <div class="service-pricing">Base <strong>50K₮/сар</strong> · QPay/card <strong>1%</strong> · Float income + subscription модель</div>
+            </div>
           </div>
-          <div class="stat">
-            <strong>Цуврал 3</strong>
-            <span>1 reel = 3 асуулт. Storytelling, brand feel, community vibe.</span>
+          <a class="pitch-link" href="https://amaraach-code.github.io/bonumpitch/" target="_blank">Full pitch deck</a>
+        </div>
+
+        <div class="candidate-card negdi">
+          <div class="candidate-card-head">
+            <div class="candidate-name">Negdi</div>
+            <div class="candidate-status">◇ Alternative</div>
           </div>
-          <div class="stat">
-            <strong>20–40 sec</strong>
-            <span>Нийт reel уртын хамгийн зөв хүрээ. Хурдтай үзэгддэг, дуусгах магадлал өндөр.</span>
+          <div class="service-list">
+            <div class="service-item">
+              <div class="service-name">Payment Gateway</div>
+              <div class="service-desc">Үндсэн бүтээгдэхүүн. Функциональ, гэхдээ feature-ийн хувьд Bonum-аас сул. Tokenization, social commerce tooling хангалтгүй.</div>
+              <div class="service-pricing">Үнийн мэдээлэл олон нийтэд <strong>ил биш</strong> — direct inquiry шаардлагатай.</div>
+            </div>
+            <div class="missing-service">
+              <strong>Байхгүй:</strong> Digital Wallets (Apple Pay, Google Pay). Visa-аас зөвшөөрөл аваагүй байгаа — Lend Anywhere стратегид тохирохгүй.
+            </div>
+            <div class="missing-service">
+              <strong>Байхгүй:</strong> SoftPOS. Бичил мерчант сегментэд нэвтрэх боломж хязгаарлагдмал.
+            </div>
+          </div>
+          <a class="pitch-link" href="https://www.negdi.mn/" target="_blank">negdi.mn</a>
+        </div>
+
+      </div>
+
+      <table class="versus-table">
+        <thead>
+          <tr>
+            <th>Capability</th>
+            <th class="bonum-col">Bonum</th>
+            <th class="negdi-col">Negdi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Payment Gateway</td>
+            <td><span class="yes">Тийм</span> · tokenization, Pay-by-Link, subscription ready</td>
+            <td><span class="weak">Тийм</span> · basic feature set, weaker tooling</td>
+          </tr>
+          <tr>
+            <td>Digital Wallets (Apple/Google Pay)</td>
+            <td><span class="yes">Тийм</span> · CaaS-аар Mastercard issue, Visa-аар зөвшөөрөлтэй</td>
+            <td><span class="no">Үгүй</span> · Visa зөвшөөрөл хүлээж байгаа</td>
+          </tr>
+          <tr>
+            <td>SoftPOS (утас = POS)</td>
+            <td><span class="yes">Тийм</span> · Bonum SDK бэлэн, utas-based POS</td>
+            <td><span class="no">Үгүй</span></td>
+          </tr>
+          <tr>
+            <td>Үнийн ил тод байдал</td>
+            <td><span class="yes">Ил</span> · pitch deck, per-service pricing</td>
+            <td><span class="weak">Ил биш</span> · direct inquiry</td>
+          </tr>
+          <tr>
+            <td>LendMN стратегид тохирох байдал</td>
+            <td><span class="yes">Өндөр</span> · "Lend Anywhere" open-loop BNPL unlock</td>
+            <td><span class="weak">Дунд</span> · gateway only scope</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="data-note">Candidate assessment: Bonum primary target, Negdi as fallback / 2nd rail option</div>
+    </div>
+
+    <div class="data-note">Дата цуглуулалт: PSP-ийн бүх merchant settlement + transaction-level flow</div>
+  </section>
+
+  <!-- ============ PATH 3 ============ -->
+  <section id="path-3">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-title-block">
+        <div class="path-label">Path 03 — Embedded / API</div>
+        <h2>Riding on <em>others' rails.</em></h2>
+        <p class="section-desc">
+          SaaS, PSP, POS, ТЕГ, телеком, logistics — бусдын rail болон data system-д API-р холбогдож, merchant visibility-г ашиглана. Хамгийн хурдан coverage, хамгийн олон signal, хамгийн капитал-хөнгөн.
+        </p>
+        <div class="section-identity">
+          <strong>Identity:</strong> Mongolia's SME <em>data layer</em> — rail-agnostic. 3–9 сарын launch, diversified risk.
+        </div>
+      </div>
+    </div>
+
+    <div class="subpath-grid">
+      <div class="subpath" data-subpath="3a"><div class="subpath-code">3a</div>
+        <div class="subpath-title">PSP API (Bonum, QPay, Storepay, Monpay)</div>
+        <div class="subpath-desc">
+          Одоогийн PSP-үүдтэй API-р холбогдож, тэдний merchant-ын settlement дата урсгалыг авна. Payment visibility-ийн <em>core backbone</em>.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Upfront</span><span class="stat-value">~$480K</span></div>
+          <div class="stat-row"><span class="stat-label">Annual</span><span class="stat-value">~$260K</span></div>
+          <div class="stat-row"><span class="stat-label">Rev share</span><span class="stat-value" data-calc="p3_revshare_pct"></span></div>
+        </div>
+        <div class="subpath-tag">Base case — GIR-ийн 20% = $1.92M/yr партнер руу.</div>
+      </div>
+
+      <div class="subpath" data-subpath="3b"><div class="subpath-code">3b</div>
+        <div class="subpath-title">POS / касс system (MASU)</div>
+        <div class="subpath-desc">
+          Касс системтэй шууд холбогдож, transaction-level дата авна. PSP-ээс илүү нарийвчилсан — item-level, time-of-day, SKU mix. MASU (<em>masu.mn</em>) QPay/SocialPay/Toki-тэй integrated local POS platform.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Upfront (extra)</span><span class="stat-value">$100K</span></div>
+          <div class="stat-row"><span class="stat-label">Annual (extra)</span><span class="stat-value">$35K</span></div>
+        </div>
+        <div class="subpath-tag">Finest-grain signal; integration complex.</div>
+      </div>
+
+      <div class="subpath" data-subpath="3c"><div class="subpath-code">3c</div>
+        <div class="subpath-title">E-commerce / marketplace</div>
+        <div class="subpath-desc">
+          Shoppy зэрэг платформд эмбэд. Online merchant-ын cart + checkout урсгал, repeat buyer rate, seasonality pattern.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Upfront (extra)</span><span class="stat-value">$75K</span></div>
+          <div class="stat-row"><span class="stat-label">Annual (extra)</span><span class="stat-value">$30K</span></div>
+        </div>
+        <div class="subpath-tag">Ecommerce SME segment — Banana Mall base-тэй таарна.</div>
+      </div>
+
+      <div class="subpath" data-subpath="3d"><div class="subpath-code">3d</div>
+        <div class="subpath-title">Бүртгэлийн SaaS (iFinance, Inforce)</div>
+        <div class="subpath-desc">
+          Нягтлан бодох SaaS-аас бизнесийн санхүүгийн тайлан (P&L, balance sheet, cash flow) урсгал. Bank statement-ээс илүү structured.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Upfront (extra)</span><span class="stat-value">$55K</span></div>
+          <div class="stat-row"><span class="stat-label">Annual (extra)</span><span class="stat-value">$30K</span></div>
+        </div>
+        <div class="subpath-tag">Structured financial signal — LLM scoring-д зориулагдсан.</div>
+      </div>
+
+      <div class="subpath" data-subpath="3e"><div class="subpath-code">3e</div>
+        <div class="subpath-title">ТЕГ eBarimt / НӨАТ дата</div>
+        <div class="subpath-desc">
+          Татварын ерөнхий газрын системээс merchant-ын VAT-verified жилийн эргэлт. Government-grade integrity — өргөдөл гаргагчийг <em>засаж чадахгүй</em> signal.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Upfront (extra)</span><span class="stat-value">$100K</span></div>
+          <div class="stat-row"><span class="stat-label">Annual (extra)</span><span class="stat-value">$35K</span></div>
+          <div class="stat-row"><span class="stat-label">Data quality</span><span class="stat-value">Highest</span></div>
+        </div>
+        <div class="subpath-tag">Mongolia-д хамгийн хүчирхэг signal байж магадгүй.</div>
+      </div>
+
+      <div class="subpath" data-subpath="3f"><div class="subpath-code">3f</div>
+        <div class="subpath-title">Telco / utility billing</div>
+        <div class="subpath-desc">
+          Mobicom, Unitel, UBEDN — төлбөрийн тогтмол байдал operational continuity-ийн signal. Дампуурлын эрт дохио.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Upfront (extra)</span><span class="stat-value">$140K</span></div>
+          <div class="stat-row"><span class="stat-label">Annual (extra)</span><span class="stat-value">$55K</span></div>
+        </div>
+        <div class="subpath-tag">Negative signal-д хамгийн хүчтэй.</div>
+      </div>
+
+      <div class="subpath" data-subpath="3g"><div class="subpath-code">3g</div>
+        <div class="subpath-title">Logistics / delivery</div>
+        <div class="subpath-desc">
+          Delivery fleet, ARD Logistics зэрэг операторуудаас shipment volume дата. Турноверын proxy, ялангуяа online + offline hybrid SME-д.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Upfront (extra)</span><span class="stat-value">$75K</span></div>
+          <div class="stat-row"><span class="stat-label">Annual (extra)</span><span class="stat-value">$30K</span></div>
+        </div>
+        <div class="subpath-tag">Proxy signal — alternative data дээр нэмэлт.</div>
+      </div>
+    </div>
+    <div class="data-note">Path 3 FULL: $1.23M upfront · $2.44M annual · <span data-calc="N_merchants"></span> merchant → rev share payout <span data-calc="p3_revshare_dollars"></span>/yr</div>
+  </section>
+
+  <!-- ============ PATH 4 ============ -->
+  <section id="path-4">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div class="section-title-block">
+        <div class="path-label">Path 04 — Bank Partnership</div>
+        <h2>Data through<br><em>the banks.</em></h2>
+        <p class="section-desc">
+          Банкнууд өөрсдөө SME-д зээлдэг тул asymmetric partner. Гэхдээ tier-1 data чанартай, regulatory credibility өгдөг. 5 түвшний оролцоо: referral-аас open banking advocacy хүртэл.
+        </p>
+        <div class="section-identity">
+          <strong>Identity:</strong> Banks' SME <em>intelligence layer</em>, not competitor. Data чанар хамгийн өндөр, regulatory tailwind-тай.
+        </div>
+      </div>
+    </div>
+
+    <div class="subpath-grid">
+      <div class="subpath" data-subpath="4a"><div class="subpath-code">4a</div>
+        <div class="subpath-title">Referral-only</div>
+        <div class="subpath-desc">
+          Банкнууд татгалзсан SME application-уудыг LendMN руу дамжуулна. Хамгийн хөнгөн form. Conversion 2,000/жил гэж үзвэл.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Upfront</span><span class="stat-value">$35K</span></div>
+          <div class="stat-row"><span class="stat-label">Annual</span><span class="stat-value" data-calc="p4a_annual"></span></div>
+          <div class="stat-row"><span class="stat-label">Referral fee</span><span class="stat-value" data-calc="p4a_fee"></span></div>
+        </div>
+        <div class="subpath-tag">Хямд, data нимгэн, narrow funnel.</div>
+      </div>
+
+      <div class="subpath" data-subpath="4b"><div class="subpath-code">4b</div>
+        <div class="subpath-title">Data-only API (realtime statement)</div>
+        <div class="subpath-desc">
+          3 банктай consent-based API. Realtime account data — LendMN-ий одоогийн LLM statement analysis-ын шууд үргэлжлэл.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Upfront</span><span class="stat-value">$275K</span></div>
+          <div class="stat-row"><span class="stat-label">Annual</span><span class="stat-value">$300K</span></div>
+          <div class="stat-row"><span class="stat-label">Data quality</span><span class="stat-value">Highest</span></div>
+        </div>
+        <div class="subpath-tag">Aegis-ын feedback loop-д хамгийн чухал.</div>
+      </div>
+
+      <div class="subpath" data-subpath="4c"><div class="subpath-code">4c</div>
+        <div class="subpath-title">Co-lending / risk-share</div>
+        <div class="subpath-desc">
+          $10M portfolio-д LendMN 50% капитал. Underwriting engine LendMN, capital + channel банк. Хүүгийн 50%-г банкинд өгнө.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Risk capital</span><span class="stat-value warn" data-calc="p4c_capital"></span></div>
+          <div class="stat-row"><span class="stat-label">Upfront (ops)</span><span class="stat-value">$200K</span></div>
+          <div class="stat-row"><span class="stat-label">Annual to bank</span><span class="stat-value" data-calc="p4c_revshare"></span></div>
+        </div>
+        <div class="subpath-tag">⚠ Balance sheet-д шууд нөлөөлнө.</div>
+      </div>
+
+      <div class="subpath" data-subpath="4d"><div class="subpath-code">4d</div>
+        <div class="subpath-title">White-label in bank channel</div>
+        <div class="subpath-desc">
+          Банкны SME app-ын дотор LendMN engine ажиллана. Distribution маш өргөн, гэхдээ хүүгийн 50%-г банкинд өгнө.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Upfront</span><span class="stat-value">$450K</span></div>
+          <div class="stat-row"><span class="stat-label">Annual</span><span class="stat-value">$225K</span></div>
+          <div class="stat-row"><span class="stat-label">Rev share out</span><span class="stat-value" data-calc="p4d_revshare"></span></div>
+        </div>
+        <div class="subpath-tag">Scale өргөн, margin нимгэн.</div>
+      </div>
+
+      <div class="subpath" data-subpath="4e"><div class="subpath-code">4e</div>
+        <div class="subpath-title">Open Banking advocacy</div>
+        <div class="subpath-desc">
+          BoM-той хамтран framework байгуулах. Direct revenue гаргахгүй, regulatory infrastructure long game. 2–3 жилийн payoff.
+        </div>
+        <div class="subpath-stats">
+          <div class="stat-row"><span class="stat-label">Upfront</span><span class="stat-value">$155K</span></div>
+          <div class="stat-row"><span class="stat-label">Annual</span><span class="stat-value">$155K</span></div>
+          <div class="stat-row"><span class="stat-label">Payoff</span><span class="stat-value">2–3 жил</span></div>
+        </div>
+        <div class="subpath-tag">Salong game — industry transformation.</div>
+      </div>
+    </div>
+    <div class="data-note">Дата цуглуулалт: Bank-grade statement data (ялангуяа 4b) + regulatory credibility</div>
+  </section>
+
+</div>
+
+<!-- ============ MATRIX ============ -->
+<section class="matrix-section">
+  <div class="matrix-inner">
+    <div class="eyebrow" style="color: var(--ink-4);">§ 03 — Strategic Comparison</div>
+    <h2>All paths, <em>on one table.</em></h2>
+    <p class="subtitle">Зардал + стратегийн шинж чанар нэг дор. <span data-calc="N_merchants"></span> merchant, <span data-calc="L_display"></span> дундаж зээл, <span data-calc="T_display"></span> сар tenor, <span data-calc="r_display"></span> сарын хүү, <span data-calc="f_display"></span> funding cost assumption-д тооцсон.</p>
+
+    <table class="matrix-table">
+      <thead>
+        <tr>
+          <th>Path</th>
+          <th>Sub-paths</th>
+          <th class="num">Y1 cost</th>
+          <th class="num">Annual</th>
+          <th class="num">Risk capital</th>
+          <th>Speed to data</th>
+          <th>Data quality</th>
+          <th>Moat</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="path-row-1">
+          <td>01 · Direct PSP</td>
+          <td>1a full · 1b staged · 1c white-label</td>
+          <td class="num">$710K – $1.7M</td>
+          <td class="num">$750K – $1.25M</td>
+          <td class="num">—</td>
+          <td>Slow · 18–36mo</td>
+          <td>Highest (100% own)</td>
+          <td>Highest</td>
+        </tr>
+        <tr class="path-row-2">
+          <td>02 · PSP M&amp;A</td>
+          <td>2a minority · 2b majority · 2c JV · 2d commercial</td>
+          <td class="num">$160K – $1.5M</td>
+          <td class="num">$35K – $1.69M</td>
+          <td class="num">Up to $1M equity</td>
+          <td>Medium · 12–18mo</td>
+          <td>High (rail-level)</td>
+          <td>High</td>
+        </tr>
+        <tr class="path-row-3">
+          <td>03 · Embedded / API</td>
+          <td>3a PSP · 3b POS · 3c e-comm · 3d SaaS · 3e ТЕГ · 3f telco · 3g logistics</td>
+          <td class="num">$685K – $1.23M</td>
+          <td class="num">$2.26M – $2.47M</td>
+          <td class="num">—</td>
+          <td>Fast · 3–9mo</td>
+          <td>Medium–High (diversified)</td>
+          <td>Low–Medium</td>
+        </tr>
+        <tr class="path-row-4">
+          <td>04 · Bank Partnership</td>
+          <td>4a referral · 4b data API · 4c co-lending · 4d white-label · 4e advocacy</td>
+          <td class="num">$35K – $450K</td>
+          <td class="num">$155K – $5.01M</td>
+          <td class="num">$5M (4c only)</td>
+          <td>Medium · 6–18mo</td>
+          <td>Highest (4b) – Low (4a)</td>
+          <td>Medium</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="subtitle" style="margin-top: 40px; font-size: 13px;">
+      ◆ Sub-path бүрийн бүрэн зардлын задаргаа нь холбогдох Excel cost model-д байна. Энд зөвхөн стратегийн shape.
+    </p>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <!-- ============ TIMELINE ============ -->
+  <section class="closing" style="padding-bottom: 60px;">
+    <div class="eyebrow">§ 04 — Sequencing, not Selection</div>
+    <h2>Which path <em>goes first?</em></h2>
+    <p style="margin-bottom: 48px;">
+      Эдгээр замууд mutually exclusive биш. Асуулт нь "аль замаар явах вэ" биш, "аль нь урдаа орж явах вэ". Portfolio approach — дараах sequencing санал болгож байна:
+    </p>
+
+    <div class="timeline">
+      <div class="tl-phase">
+        <div class="tl-marker">
+          <div class="tl-dot"></div>
+          <div class="tl-time">Now — 9 months</div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-phase-name">Phase A · Speed + Quality</div>
+          <div class="tl-paths">Path 3 base + Path 4b</div>
+          <p>Хурдан coverage (embedded API)-г tier-1 bank data quality (realtime statement)-тэй хослуулж, data foundation-оо эхэлж байгуулна. Capital-light, break-even ~1,500 merchant.</p>
+        </div>
+      </div>
+
+      <div class="tl-phase">
+        <div class="tl-marker">
+          <div class="tl-dot"></div>
+          <div class="tl-time">9 — 18 months</div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-phase-name">Phase B · Anchor Rail Decision</div>
+          <div class="tl-paths">Path 2 (Bonum / Negdi)</div>
+          <p>PSP анкерийн шийдвэр — Bonum-тай 2a minority → 2c JV-ийн хувиарлах. Path 3 sub-paths-ыг өргөжүүлнэ (ТЕГ, POS, logistics).</p>
+        </div>
+      </div>
+
+      <div class="tl-phase">
+        <div class="tl-marker">
+          <div class="tl-dot"></div>
+          <div class="tl-time">18 — 36 months</div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-phase-name">Phase C · Regulatory &amp; Scale</div>
+          <div class="tl-paths">Path 4e + Path 4d</div>
+          <p>Open Banking advocacy-р regulatory infrastructure-г хэлбэржүүлэх. Bank white-label channel-аар distribution өргөтгөх (шинэ segment).</p>
+        </div>
+      </div>
+
+      <div class="tl-phase">
+        <div class="tl-marker">
+          <div class="tl-dot"></div>
+          <div class="tl-time">3+ years · Optionality</div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-phase-name">Phase D · Own Rails (optional)</div>
+          <div class="tl-paths">Path 1 (if strategic)</div>
+          <p>Phase A–C амжилттай болсон тохиолдолд Path 1-г авч үзнэ. Энэ нь starting point биш, <em>graduation destination</em>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STRATEGIC EVAL MATRIX ============ -->
+  <section class="closing" style="padding-top: 40px; padding-bottom: 60px;">
+    <div class="eyebrow">§ 05 — Strategic Evaluation</div>
+    <h2>Path-ын <em>стратегийн үнэлгээ.</em></h2>
+    <p style="margin-bottom: 32px;">Тавантын шалгуур, 5-point scale (1 = сул, 5 = хүчтэй).</p>
+
+    <table class="matrix-table" style="background: var(--bg-card); color: var(--ink);">
+      <thead>
+        <tr>
+          <th style="color: var(--ink-3); background: var(--bg);">Dimension</th>
+          <th class="num" style="color: #8B2C1F; background: var(--bg);">Path 01</th>
+          <th class="num" style="color: #8B6914; background: var(--bg);">Path 02</th>
+          <th class="num" style="color: #2D5A3D; background: var(--bg);">Path 03</th>
+          <th class="num" style="color: #1F4A6B; background: var(--bg);">Path 04</th>
+        </tr>
+      </thead>
+      <tbody style="color: var(--ink);">
+        <tr><td style="color: var(--ink);">Strategic importance (long-term moat)</td><td class="num">★★★★★</td><td class="num">★★★★</td><td class="num">★★★</td><td class="num">★★★★</td></tr>
+        <tr><td style="color: var(--ink);">Speed to market</td><td class="num">★</td><td class="num">★★★</td><td class="num">★★★★★</td><td class="num">★★★</td></tr>
+        <tr><td style="color: var(--ink);">Capital efficiency</td><td class="num">★</td><td class="num">★★★</td><td class="num">★★★★★</td><td class="num">★★★</td></tr>
+        <tr><td style="color: var(--ink);">Data quality</td><td class="num">★★★★★</td><td class="num">★★★★</td><td class="num">★★★</td><td class="num">★★★★★</td></tr>
+        <tr><td style="color: var(--ink);">Execution risk</td><td class="num">★ (өндөр)</td><td class="num">★★★</td><td class="num">★★★★</td><td class="num">★★★</td></tr>
+        <tr><td style="color: var(--ink);">Identity fit (SME lender)</td><td class="num">★★</td><td class="num">★★★</td><td class="num">★★★★</td><td class="num">★★★★★</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</div>
+
+<!-- ============ AEGIS FRAMING ============ -->
+<section class="core-logic">
+  <div class="core-logic-inner">
+    <div class="eyebrow">§ 06 — What these paths do NOT include</div>
+    <div class="core-eq">
+      <span class="term">Data</span>
+      <span class="op">+</span>
+      <span class="term" style="color: var(--accent); border-color: var(--accent);">Engine</span>
+      <span class="op">=</span>
+      <span class="outcome">Outcome</span>
+    </div>
+    <p class="core-desc">
+      Эдгээр 4 зам бол <strong style="color:#F5F1EA">Data</strong>-г үүсгэх замууд.<br><br>
+      <strong style="color:#F5F1EA">Engine</strong> — буюу Aegis — бол data-г process хийж outcome гаргах давхарга. Aegis нь data visibility үүсгэх хэрэглүүр <em>биш</em>. Board эдгээр замуудыг үнэлэхдээ Aegis-ээс тусад нь үнэлэх ёстой — Aegis өөрөө хэнтэй ажиллахаас нь үл хамааран эдгээр замын аль нэгэн дээр суурилна.
+    </p>
+    <p class="core-desc" style="margin-top: 24px; font-style: italic;">
+      → Data path decision today. Aegis work continues in parallel.
+    </p>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <section class="closing">
+    <div class="eyebrow">§ 07 — The Question Before the Board</div>
+    <h2>What <em>is</em> LendMN:<br>rail operator, consolidator, orchestrator, or bank intelligence layer?</h2>
+    <p>
+      Зам тус бүр LendMN-ий identity-г өөрчилнө. Board энэ identity answer-ийг зөвшөөрч байж execution sequencing-г сонгож чадна. Cost model-ын нарийвчилсан тоо дараагийн хувилбарт сайжирна — өнөөдрийн шийдвэрлэх зүйл бол <em>аль замыг эхлээд эхлүүлэх вэ</em> гэдэг асуулт.
+    </p>
+  </section>
+
+  <footer class="footer">
+    <span>LendMN · Board Strategy Document · 2026</span>
+    <span>SME Data Visibility</span>
+  </footer>
+</div>
+
+
+
+
+
+<!-- ============ GLOBAL INPUT BAR ============ -->
+<div class="global-bar" id="globalBar">
+  <span class="global-bar-label">Global Inputs ◆</span>
+  <div class="global-field">
+    <label>N</label>
+    <input type="number" id="g_N" min="0" step="100">
+    <span class="unit">merch.</span>
+  </div>
+  <div class="global-field">
+    <label>L</label>
+    <input type="number" id="g_L" min="0" step="100">
+    <span class="unit">USD</span>
+  </div>
+  <div class="global-field">
+    <label>T</label>
+    <input type="number" id="g_T" min="1" step="1">
+    <span class="unit">mo</span>
+  </div>
+  <div class="global-field">
+    <label>r</label>
+    <input type="number" id="g_r" min="0" step="0.01">
+    <span class="unit">%/mo</span>
+  </div>
+  <div class="global-field">
+    <label>f</label>
+    <input type="number" id="g_f" min="0" step="0.5">
+    <span class="unit">%/yr</span>
+  </div>
+  <div class="global-field">
+    <label>txn/day</label>
+    <input type="number" id="g_txnPerDay" min="0" step="0.1">
+  </div>
+  <div class="global-field">
+    <label>avgTxn</label>
+    <input type="number" id="g_avgTxn" min="0" step="1">
+    <span class="unit">$</span>
+  </div>
+  <div class="global-field">
+    <label>MDR</label>
+    <input type="number" id="g_mdr" min="0" step="0.1">
+    <span class="unit">%</span>
+  </div>
+  <button class="global-reset" id="globalReset">↺ Reset</button>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ==================== SUBPATH DATA ====================
+  const SUBPATHS = [{"code": "1a", "title": "Full independent license", "desc": "BoM-аас full PSP license авч, core gateway, AML stack, fraud engine, ops team-ээ өөрсдөө бүтээнэ. Хамгийн өргөн хүрээтэй, хамгийн их capital.", "tag": "Маш өндөр moat, гэхдээ team dilution эрсдэлтэй.", "timeline": "24–36 сар", "local_inputs": [{"key": "fte_1a", "label": "Ops team FTE", "default": 20, "step": 1, "int": true}, {"key": "fte_cost_1a", "label": "Avg FTE cost", "default": 37500, "step": 1000, "int": true, "unit": "USD/yr"}], "expenses": [{"label": "License + legal application", "upfront": "115000", "annual": "0"}, {"label": "Core switch / gateway build", "upfront": "750000", "annual": "150000"}, {"label": "AML / KYC compliance stack", "upfront": "150000", "annual": "115000"}, {"label": "Card scheme / interbank", "upfront": "150000", "annual": "100000"}, {"label": "Ops team (FTE × cost)", "upfront": "s.fte_1a * s.fte_cost_1a * 0.5", "annual": "s.fte_1a * s.fte_cost_1a", "note": "Y1 upfront = 6 months ramp"}, {"label": "Fraud + monitoring", "upfront": "75000", "annual": "75000"}, {"label": "Reconciliation + treasury", "upfront": "50000", "annual": "60000"}], "revenue": [{"label": "Merchant fee retention (100% GFR)", "annual": "d.GFR", "note": "Own PSP → бүх шимтгэл LendMN-д үлдэнэ"}, {"label": "Interest revenue (NII)", "annual": "d.NII", "note": "Lending book-ийн хүүгийн цэвэр орлого"}]}, {"code": "1b", "title": "Staged / sandbox license", "desc": "Limited scope (merchant acquiring only)-с эхэлж, хожим өргөжүүлнэ. Scope багасгаж эрсдэлийг хумих staged approach.", "tag": "1a-ийн ~60% scope. Learn-by-doing strategy.", "timeline": "12–18 сар", "local_inputs": [{"key": "fte_1b", "label": "Ops team FTE", "default": 12, "step": 1, "int": true}, {"key": "fte_cost_1b", "label": "Avg FTE cost", "default": 37500, "step": 1000, "int": true, "unit": "USD/yr"}, {"key": "gfr_share_1b", "label": "GFR coverage (limited scope)", "default": 40, "step": 5, "unit": "%"}], "expenses": [{"label": "Limited scope license", "upfront": "70000", "annual": "0"}, {"label": "Reduced ops team (FTE × cost)", "upfront": "s.fte_1b * s.fte_cost_1b * 0.5", "annual": "s.fte_1b * s.fte_cost_1b"}, {"label": "Gateway + compliance (pro-rated)", "upfront": "615000", "annual": "300000"}], "revenue": [{"label": "Partial fee retention (limited scope)", "annual": "d.GFR * (s.gfr_share_1b / 100)", "note": "Хязгаарлагдмал scope-оос хамаарч GFR-ийн хувь"}, {"label": "Interest revenue (NII)", "annual": "d.NII"}]}, {"code": "1c", "title": "White-label intl rail license", "desc": "Adyen, Stripe Connect маягийн платформын license худалдан авч, branded PSP ажиллуулна. Technology хурдан, гэхдээ royalty flow урсана.", "tag": "Хурдан launch, vendor lock-in эрсдэлтэй.", "timeline": "9–15 сар", "local_inputs": [{"key": "vendor_royalty_1c", "label": "Vendor royalty", "default": 15, "step": 1, "unit": "% of GFR"}], "expenses": [{"label": "Platform license (initial)", "upfront": "400000", "annual": "350000"}, {"label": "Local integration + BoM", "upfront": "150000", "annual": "100000"}, {"label": "Ops team (8 FTE × $37.5K)", "upfront": "160000", "annual": "300000"}, {"label": "Vendor royalty on fees", "upfront": "0", "annual": "d.GFR * (s.vendor_royalty_1c / 100)", "note": "Platform-д өгөх royalty"}], "revenue": [{"label": "Merchant fee (after vendor royalty)", "annual": "d.GFR * (1 - s.vendor_royalty_1c / 100)"}, {"label": "Interest revenue (NII)", "annual": "d.NII"}]}, {"code": "2a", "title": "Minority stake (20–25%)", "desc": "Sign + optionality. Board seat, preferential data access гэрээ. Rail ownership бага, гэхдээ strategic alignment болон future escalation path нээлттэй.", "tag": "Signal deal — moat сул, гэхдээ хөрөнгө бага.", "timeline": "6–9 сар", "local_inputs": [], "expenses": [{"label": "Equity investment", "upfront": "s.equity2b * s.stake2a / 50", "annual": "0", "note": "= 2b equity × (stake2a / 50%)"}, {"label": "DD + legal", "upfront": "75000", "annual": "0"}, {"label": "Governance / board seat", "upfront": "0", "annual": "35000"}], "revenue": [{"label": "Dividend share (pro-rata)", "annual": "d.GFR * 0.3 * (s.stake2a / 100)", "note": "PSP net margin ~30%-аас equity хувь"}, {"label": "Interest revenue (lending unchanged)", "annual": "d.NII"}]}, {"code": "2b", "title": "Majority acquisition (51%+)", "desc": "Full rail control. Consolidation play. PSP-ийг LendMN бүтцийн дотор subsidiary болгон ажиллуулж, data-г уях.", "tag": "Best anchor — integration + culture risk.", "timeline": "12–18 сар", "local_inputs": [{"key": "integration_cost_2b", "label": "Integration cost", "default": 350000, "step": 50000, "int": true, "unit": "USD"}], "expenses": [{"label": "Equity (controlling stake)", "upfront": "s.equity2b", "annual": "0"}, {"label": "DD + legal", "upfront": "150000", "annual": "0"}, {"label": "Integration (18mo)", "upfront": "s.integration_cost_2b", "annual": "0"}, {"label": "Subsidiary governance", "upfront": "0", "annual": "200000"}], "revenue": [{"label": "Consolidated PSP fees (majority)", "annual": "d.GFR * 0.5", "note": "Subsidiary dividend + data value"}, {"label": "Interest revenue (NII)", "annual": "d.NII"}]}, {"code": "2c", "title": "JV 50/50 (шинэ entity)", "desc": "LendMN + PSP хамтарсан тусдаа payments entity. 50/50 equity + revenue split structure.", "tag": "25% of GFR LendMN-д үлдэнэ + long-term data ownership.", "timeline": "9–15 сар", "local_inputs": [{"key": "jv_setup_2c", "label": "JV entity setup", "default": 400000, "step": 50000, "int": true, "unit": "USD"}], "expenses": [{"label": "JV entity setup + capitalization", "upfront": "s.jv_setup_2c", "annual": "0"}, {"label": "Tech integration", "upfront": "200000", "annual": "50000"}, {"label": "Rev share to partner (50% of GFR)", "upfront": "0", "annual": "d.FR1", "note": "= GFR × revShare2"}, {"label": "BoM / scheme costs", "upfront": "0", "annual": "d.FR1 * (s.bomShare / 100)", "note": "= FR1 × bomShare"}], "revenue": [{"label": "Txn volume", "annual": "d.txnVol", "is_volume": true, "note": "N × txn/day × 365"}, {"label": "GMV generated", "annual": "d.GMV", "is_volume_money": true}, {"label": "Gross fee revenue (GFR)", "annual": "d.GFR"}, {"label": "LendMN net fee (25% of GFR)", "annual": "d.NFR"}, {"label": "Interest revenue (NII)", "annual": "d.NII"}]}, {"code": "2d", "title": "Commercial rev-share only", "desc": "Equity оролцоогүй. API + revenue share гэрээ. Хамгийн хөнгөн form, хамгийн шуурхай, гэхдээ moat хамгийн нимгэн.", "tag": "No equity — хамгийн хурдан, хамгийн reversible.", "timeline": "3–6 сар", "local_inputs": [], "expenses": [{"label": "Integration", "upfront": "125000", "annual": "40000"}, {"label": "Legal", "upfront": "35000", "annual": "0"}, {"label": "Rev share to partner (50% of GFR)", "upfront": "0", "annual": "d.FR1"}, {"label": "BoM / scheme costs", "upfront": "0", "annual": "d.FR1 * (s.bomShare / 100)"}], "revenue": [{"label": "LendMN net fee (25% of GFR)", "annual": "d.NFR"}, {"label": "Interest revenue (NII)", "annual": "d.NII"}]}, {"code": "3a", "title": "PSP API (Bonum, QPay, Storepay, Monpay)", "desc": "Одоогийн PSP-үүдтэй API-р холбогдож, тэдний merchant-ын settlement дата урсгалыг авна. Payment visibility-ийн core backbone.", "tag": "Base case — diversified PSP coverage.", "timeline": "3–6 сар", "local_inputs": [{"key": "partners_3a", "label": "PSP partners integrated", "default": 6, "step": 1, "int": true}, {"key": "integration_3a", "label": "Per-partner integration", "default": 80000, "step": 10000, "int": true, "unit": "USD"}, {"key": "bd_fte_3a", "label": "BD team FTE", "default": 4, "step": 1, "int": true}], "expenses": [{"label": "Integration engineering", "upfront": "s.partners_3a * s.integration_3a", "annual": "s.partners_3a * 12500", "note": "= partners × per-partner cost"}, {"label": "BD / Partnership team", "upfront": "s.bd_fte_3a * 37500", "annual": "s.bd_fte_3a * 45000"}, {"label": "API / data fees to partners", "upfront": "55000", "annual": "85000"}, {"label": "Revenue share (% of interest)", "upfront": "0", "annual": "d.GIR * (s.revShare3 / 100)", "note": "= GIR × revShare3"}], "revenue": [{"label": "Net interest income (after funding)", "annual": "d.NII", "note": "Lending NII"}, {"label": "Less: rev share to partners", "annual": "-d.GIR * (s.revShare3 / 100)", "is_negative": true}]}, {"code": "3b", "title": "POS / касс system (MASU)", "desc": "Касс системтэй шууд холбогдож, transaction-level дата авна. PSP-ээс илүү нарийвчилсан.", "tag": "Finest-grain signal; integration complex.", "timeline": "6–9 сар", "local_inputs": [], "expenses": [{"label": "POS integration", "upfront": "100000", "annual": "35000"}], "revenue": [{"label": "NPL reduction benefit (est.)", "annual": "d.P * 0.005", "note": "~0.5% NPL improvement from item-level data"}]}, {"code": "3c", "title": "E-commerce / marketplace (Shoppy)", "desc": "Shoppy зэрэг платформд эмбэд. Online merchant-ын cart + checkout урсгал, repeat buyer rate.", "tag": "Ecommerce SME segment — Banana Mall base-тэй таарна.", "timeline": "3–6 сар", "local_inputs": [], "expenses": [{"label": "Platform integration", "upfront": "75000", "annual": "30000"}], "revenue": [{"label": "NPL reduction benefit (est.)", "annual": "d.P * 0.003"}]}, {"code": "3d", "title": "Бүртгэлийн SaaS (iFinance, Inforce)", "desc": "Нягтлан бодох SaaS-аас бизнесийн санхүүгийн тайлан (P&L, balance sheet, cash flow) урсгал.", "tag": "Structured financial signal — LLM scoring-д зориулагдсан.", "timeline": "3–6 сар", "local_inputs": [], "expenses": [{"label": "SaaS integration", "upfront": "55000", "annual": "30000"}], "revenue": [{"label": "NPL reduction benefit (est.)", "annual": "d.P * 0.008", "note": "~0.8% NPL improvement (structured data)"}]}, {"code": "3e", "title": "ТЕГ eBarimt / НӨАТ дата", "desc": "Татварын ерөнхий газрын системээс merchant-ын VAT-verified жилийн эргэлт. Government-grade integrity.", "tag": "Mongolia-д хамгийн хүчирхэг signal байж магадгүй.", "timeline": "6–12 сар (regulatory process)", "local_inputs": [], "expenses": [{"label": "API access + compliance", "upfront": "100000", "annual": "35000"}], "revenue": [{"label": "NPL reduction benefit (est.)", "annual": "d.P * 0.015", "note": "~1.5% NPL improvement — highest quality signal"}]}, {"code": "3f", "title": "Telco / utility billing", "desc": "Mobicom, Unitel, UBEDN — төлбөрийн тогтмол байдал operational continuity-ийн signal.", "tag": "Negative signal-д хамгийн хүчтэй.", "timeline": "6–9 сар", "local_inputs": [], "expenses": [{"label": "Per-telco integration", "upfront": "140000", "annual": "55000"}], "revenue": [{"label": "Early-warning NPL reduction", "annual": "d.P * 0.004"}]}, {"code": "3g", "title": "Logistics / delivery", "desc": "Delivery fleet, ARD Logistics зэрэг операторуудаас shipment volume дата. Турноверын proxy.", "tag": "Proxy signal — alternative data дээр нэмэлт.", "timeline": "3–6 сар", "local_inputs": [], "expenses": [{"label": "Logistics integration", "upfront": "75000", "annual": "30000"}], "revenue": [{"label": "NPL reduction benefit (est.)", "annual": "d.P * 0.002"}]}, {"code": "4a", "title": "Referral-only", "desc": "Банкнууд татгалзсан SME application-уудыг LendMN руу дамжуулна. Хамгийн хөнгөн form.", "tag": "Хямд, data нимгэн, narrow funnel.", "timeline": "3–6 сар", "local_inputs": [], "expenses": [{"label": "Setup (API + legal)", "upfront": "35000", "annual": "0"}, {"label": "Referral fees to banks", "upfront": "0", "annual": "s.referrals * s.refFee", "note": "= referrals × fee per conversion"}, {"label": "Conversion ops", "upfront": "0", "annual": "65000"}], "revenue": [{"label": "Incremental interest from referred loans", "annual": "s.referrals * d.iPerLoan * 0.3", "note": "Referred SMEs-аас ~30% new incremental borrowers"}]}, {"code": "4b", "title": "Data-only API (realtime statement)", "desc": "3 банктай consent-based API. Realtime account data — LendMN-ий одоогийн LLM statement analysis-ын шууд үргэлжлэл.", "tag": "Highest data quality — Aegis feedback loop-д чухал.", "timeline": "9–12 сар", "local_inputs": [{"key": "banks_4b", "label": "Banks integrated", "default": 3, "step": 1, "int": true}], "expenses": [{"label": "Integration (per bank)", "upfront": "s.banks_4b * 91666", "annual": "0", "note": "~$90K per bank"}, {"label": "Annual data license", "upfront": "0", "annual": "s.banks_4b * 66666"}, {"label": "Volume API calls", "upfront": "0", "annual": "100000"}], "revenue": [{"label": "NPL reduction (bank-grade data)", "annual": "d.P * 0.02", "note": "~2% NPL improvement from realtime statement access"}, {"label": "Interest revenue (NII)", "annual": "d.NII"}]}, {"code": "4c", "title": "Co-lending / risk-share", "desc": "Co-lending portfolio with bank. LendMN underwriting, both share capital + interest.", "tag": "⚠ Risk capital balance sheet-д шууд нөлөөлнө.", "timeline": "12–18 сар", "local_inputs": [], "expenses": [{"label": "Integration", "upfront": "200000", "annual": "0"}, {"label": "Risk capital (LendMN share)", "upfront": "s.coPortfolio * (s.coShare / 100)", "annual": "0", "note": "⚠ Balance sheet allocation", "is_capital": true}, {"label": "Annual data + ops", "upfront": "0", "annual": "150000"}, {"label": "Rev share to bank", "upfront": "0", "annual": "s.coPortfolio * (s.r / 100) * 12 * (s.revShare4c / 100)", "note": "= coPortfolio × r × 12 × revShare4c"}], "revenue": [{"label": "Gross interest on co-portfolio", "annual": "s.coPortfolio * (s.r / 100) * 12", "note": "= coPortfolio × r × 12"}, {"label": "Less: rev share to bank", "annual": "-s.coPortfolio * (s.r / 100) * 12 * (s.revShare4c / 100)", "is_negative": true}]}, {"code": "4d", "title": "White-label in bank channel", "desc": "Банкны SME app-ын дотор LendMN engine ажиллана. Distribution маш өргөн.", "tag": "Scale өргөн, margin нимгэн.", "timeline": "12–18 сар", "local_inputs": [], "expenses": [{"label": "Development + integration", "upfront": "450000", "annual": "0"}, {"label": "SLA / support team", "upfront": "0", "annual": "225000"}, {"label": "Rev share to bank (50% of GIR)", "upfront": "0", "annual": "d.GIR * (s.revShare4d / 100)"}], "revenue": [{"label": "Gross interest revenue (full book)", "annual": "d.GIR"}, {"label": "Less: funding cost", "annual": "-d.FC", "is_negative": true}, {"label": "Less: rev share to bank", "annual": "-d.GIR * (s.revShare4d / 100)", "is_negative": true}]}, {"code": "4e", "title": "Open Banking advocacy", "desc": "BoM-той хамтран framework байгуулах. Direct revenue гаргахгүй, regulatory infrastructure long game.", "tag": "Long game — industry transformation.", "timeline": "24–36 сар", "local_inputs": [], "expenses": [{"label": "Legal + consulting", "upfront": "100000", "annual": "100000"}, {"label": "Industry engagement", "upfront": "55000", "annual": "55000"}], "revenue": [{"label": "Indirect: future regulatory advantage", "annual": "0", "note": "Direct revenue гаргахгүй — optionality value"}]}];
+
+  // ==================== DEFAULT STATE ====================
+  const defaults = {
+    // Global lending
+    N: 10000, L: 2000, T: 12, r: 3.99, f: 20,
+    // Global payment
+    txnPerDay: 1, avgTxn: 41, mdr: 1.5,
+    // Global fee structure
+    revShare2: 50, bomShare: 50,
+    // Path 2 M&A
+    equity2b: 1000000, stake2a: 25,
+    // Path 3
+    revShare3: 20,
+    // Path 4
+    referrals: 2000, refFee: 200,
+    coPortfolio: 10000000, coShare: 50,
+    revShare4c: 50, revShare4d: 50,
+    // Sub-path local defaults (collect from SUBPATHS)
+  };
+
+  // Merge sub-path local defaults
+  SUBPATHS.forEach(sp => {
+    (sp.local_inputs || []).forEach(inp => {
+      defaults[inp.key] = inp.default;
+    });
+  });
+
+  const state = Object.assign({}, defaults);
+
+  // ==================== FORMATTERS ====================
+  function fmtMoney(v) {
+    if (v === 0) return '$0';
+    const abs = Math.abs(v);
+    let result;
+    if (abs >= 1e6) result = '$' + (v / 1e6).toFixed(2) + 'M';
+    else if (abs >= 1e3) result = '$' + (v / 1e3).toFixed(0) + 'K';
+    else result = '$' + Math.round(v);
+    return result;
+  }
+  function fmtMoneyNeg(v) {
+    // for negative reveal — show as "-$XXK"
+    if (v >= 0) return fmtMoney(v);
+    return '−' + fmtMoney(Math.abs(v));
+  }
+  function fmtCount(v) {
+    if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(2) + 'M';
+    if (Math.abs(v) >= 1e3) return (v / 1e3).toFixed(0) + 'K';
+    return Math.round(v).toString();
+  }
+  function fmtInt(v) { return Math.round(v).toLocaleString('en-US'); }
+  function fmtPct(v) { return v.toFixed(v % 1 === 0 ? 0 : 2) + '%'; }
+
+  // ==================== DERIVED ====================
+  function derive(s) {
+    const iPerLoan = s.L * (s.r / 100) * s.T;
+    const c = 12 / s.T;
+    const GIR = s.N * c * iPerLoan;
+    const P = s.N * s.L;
+    const FC = P * (s.f / 100);
+    const NII = GIR - FC;
+    const txnVol = s.N * s.txnPerDay * 365;
+    const GMV = txnVol * s.avgTxn;
+    const GFR = GMV * (s.mdr / 100);
+    const FR1 = GFR * (s.revShare2 / 100);
+    const NFR = GFR * (1 - s.revShare2 / 100) * (1 - s.bomShare / 100);
+    return { iPerLoan, c, GIR, P, FC, NII, txnVol, GMV, GFR, FR1, NFR };
+  }
+
+  // ==================== FORMULA EVALUATOR ====================
+  function evalFormula(formula, s, d) {
+    // Safety: formula is controlled server-side, not user input.
+    // Eval with s and d in scope.
+    try {
+      return new Function('s', 'd', 'return (' + formula + ');')(s, d);
+    } catch (e) {
+      console.error('Formula error:', formula, e);
+      return 0;
+    }
+  }
+
+  // ==================== RENDER ONE SUBPATH ====================
+  function renderSubpath(spEl, sp, s, d) {
+    // Find or create body container
+    let body = spEl.querySelector('.subpath-body');
+    if (!body) {
+      body = document.createElement('div');
+      body.className = 'subpath-body';
+      // Insert AFTER subpath-desc, BEFORE subpath-stats (and we'll remove old stats)
+      const stats = spEl.querySelector('.subpath-stats');
+      const tag = spEl.querySelector('.subpath-tag');
+      if (stats) stats.style.display = 'none';
+      const desc = spEl.querySelector('.subpath-desc');
+      if (desc) desc.insertAdjacentElement('afterend', body);
+      else spEl.appendChild(body);
+
+      // Move tag after body
+      if (tag) body.insertAdjacentElement('afterend', tag);
+    }
+
+    // Build local inputs bar
+    let localHtml = '';
+    if (sp.local_inputs && sp.local_inputs.length) {
+      const inputsHtml = sp.local_inputs.map(inp => {
+        const val = state[inp.key];
+        return `
+          <div class="local-field">
+            <label>${inp.label}</label>
+            <input type="number" data-local-key="${inp.key}" value="${val}" step="${inp.step || 1}" />
+            ${inp.unit ? `<span class="unit">${inp.unit}</span>` : ''}
+          </div>`;
+      }).join('');
+      localHtml = `
+        <div class="local-inputs-bar" data-local-bar>
+          <div class="local-inputs-title">Inputs — ${sp.code} specific parameters</div>
+          <div class="local-inputs-grid">${inputsHtml}</div>
+        </div>`;
+    }
+
+    // Build expenses
+    const expLines = (sp.expenses || []).map(line => {
+      const upfront = line.upfront ? evalFormula(line.upfront, s, d) : 0;
+      const annual = line.annual ? evalFormula(line.annual, s, d) : 0;
+      const upCls = upfront === 0 ? 'zero' : (line.is_capital ? 'capital' : '');
+      const anCls = annual === 0 ? 'zero' : '';
+      const upFmt = line.is_capital && upfront > 0 ? `⚠ ${fmtMoney(upfront)}` : fmtMoney(upfront);
+      return `
+        <div class="er-line">
+          <div class="er-label">${line.label}${line.note ? `<small>${line.note}</small>` : ''}</div>
+          <div class="er-amt ${upCls}">${upFmt}</div>
+          <div class="er-amt ${anCls}">${fmtMoney(annual)}</div>
+        </div>`;
+    }).join('');
+
+    // Compute totals (exclude is_capital from operating totals — capital is balance sheet)
+    let totalExpUpfront = 0, totalExpAnnual = 0, totalCapital = 0;
+    (sp.expenses || []).forEach(line => {
+      const upfront = line.upfront ? evalFormula(line.upfront, s, d) : 0;
+      const annual = line.annual ? evalFormula(line.annual, s, d) : 0;
+      if (line.is_capital) {
+        totalCapital += upfront;
+      } else {
+        totalExpUpfront += upfront;
+        totalExpAnnual += annual;
+      }
+    });
+
+    // Build revenue
+    const revLines = (sp.revenue || []).map(line => {
+      const annual = line.annual ? evalFormula(line.annual, s, d) : 0;
+      const cls = line.is_negative ? 'neg' : (annual === 0 ? 'zero' : '');
+      let formatted;
+      if (line.is_volume) {
+        formatted = fmtCount(annual) + ' /yr';
+      } else if (line.is_volume_money) {
+        formatted = fmtMoney(annual) + ' /yr';
+      } else if (line.is_negative) {
+        formatted = fmtMoneyNeg(annual);
+      } else {
+        formatted = fmtMoney(annual);
+      }
+      return `
+        <div class="er-line">
+          <div class="er-label">${line.label}${line.note ? `<small>${line.note}</small>` : ''}</div>
+          <div class="er-amt"></div>
+          <div class="er-amt ${cls}">${formatted}</div>
+        </div>`;
+    }).join('');
+
+    // Revenue total — only monetary lines, skip volume lines
+    let totalRevAnnual = 0;
+    (sp.revenue || []).forEach(line => {
+      if (line.is_volume || line.is_volume_money) return;
+      const annual = line.annual ? evalFormula(line.annual, s, d) : 0;
+      totalRevAnnual += annual;
+    });
+
+    // Net margin
+    const netAnnual = totalRevAnnual - totalExpAnnual;
+    const netCls = netAnnual >= 0 ? 'positive' : 'negative';
+
+    const html = `
+      ${localHtml}
+      <div class="er-grid">
+        <div class="er-block expenses">
+          <div class="er-title">Expenses</div>
+          <div class="er-line-header">
+            <span>Item</span>
+            <span class="er-col-amt">Upfront</span>
+            <span class="er-col-amt">Annual</span>
+          </div>
+          ${expLines}
+          <div class="er-total">
+            <span>Total${totalCapital > 0 ? ' (op)' : ''}</span>
+            <span class="er-amt">${fmtMoney(totalExpUpfront)}</span>
+            <span class="er-amt">${fmtMoney(totalExpAnnual)}</span>
+          </div>
+          ${totalCapital > 0 ? `
+          <div class="er-line" style="margin-top:4px; font-size: 11px;">
+            <div class="er-label" style="color: var(--p1);">⚠ Risk capital (balance sheet)</div>
+            <div class="er-amt capital">${fmtMoney(totalCapital)}</div>
+            <div class="er-amt zero">—</div>
+          </div>` : ''}
+        </div>
+        <div class="er-block revenue">
+          <div class="er-title">Revenue</div>
+          <div class="er-line-header">
+            <span>Item</span>
+            <span class="er-col-amt"></span>
+            <span class="er-col-amt">Annual</span>
+          </div>
+          ${revLines}
+          <div class="er-total">
+            <span>Total</span>
+            <span class="er-amt"></span>
+            <span class="er-amt">${fmtMoney(totalRevAnnual)}</span>
           </div>
         </div>
       </div>
-    </header>
+      <div class="er-net">
+        <span class="er-net-label">Net Annual (Revenue − Annual Opex)</span>
+        <span class="er-net-value ${netCls}">${fmtMoneyNeg(netAnnual)}</span>
+      </div>
+      <div class="er-net" style="background: transparent; border: 1px dashed var(--rule); color: var(--ink-2); margin-top: 8px; padding: 10px 18px;">
+        <span class="er-net-label" style="color: var(--ink-3);">Timeline to launch</span>
+        <span class="er-net-value" style="color: var(--ink); font-size: 12px; font-weight: 600;">${sp.timeline}</span>
+      </div>
+    `;
 
-    <main class="content">
-      <section class="section">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">01 • Content strategy</div>
-            <h2>Контентийн үндсэн зорилго</h2>
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="card">
-            <h3>Brand-level objective</h3>
-            <ul class="check-list">
-              <li>Royal Fitness-ийн орчныг амьд, хөгжилтэй, хүнлэг харагдуулах</li>
-              <li>Гишүүдийн бодит, casual vibe-ийг ил гаргах</li>
-              <li>Community мэдрэмж үүсгэх</li>
-            </ul>
-          </div>
-          <div class="card">
-            <h3>Performance objective</h3>
-            <ul class="check-list">
-              <li>View duration өндөр байлгах</li>
-              <li>Comment авах асуулт сонгох</li>
-              <li>Series болгож үргэлжлүүлэх боломжтой бүтэцтэй байх</li>
-            </ul>
-          </div>
-        </div>
-        <div class="quote" style="margin-top:16px;">
-          <h4>Core principle</h4>
-          <p class="muted">Reel бүр нь зүгээр нэг random interview биш, харин “Royal Fitness-ийн гишүүд ийм vibe-тэй, энэ газар community нь амьд” гэсэн мэдрэмж төрүүлэх ёстой.</p>
-        </div>
-      </section>
+    body.innerHTML = html;
 
-      <section class="section">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">02 • Structure</div>
-            <h2>Контентийн ерөнхий формат</h2>
-          </div>
-        </div>
-        <div class="grid-4">
-          <div class="soft-card">
-            <h4>Canvas</h4>
-            <p class="muted">9:16 босоо видео. Reel / TikTok style edit.</p>
-          </div>
-          <div class="soft-card">
-            <h4>Answer length</h4>
-            <p class="muted">Хариулт бүр 2–5 секунд. Богино байвал retention өндөр.</p>
-          </div>
-          <div class="soft-card">
-            <h4>Total duration</h4>
-            <p class="muted">20–40 секунд бол хамгийн тохиромжтой хүрээ.</p>
-          </div>
-          <div class="soft-card">
-            <h4>Core flow</h4>
-            <p class="muted">Hook → Question → Multiple answers → Strong finish → CTA.</p>
-          </div>
-        </div>
-        <div class="process">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div><strong>Intro / Hook</strong><span class="muted">1–2 секунд. Шууд анхаарал татах текст эсвэл gym B-roll.</span></div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div><strong>Question reveal</strong><span class="muted">Асуултыг screen дээр том, ойлгомжтой харуулна.</span></div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div><strong>Fast answers</strong><span class="muted">Олон хүний хариултыг quick cut-аар эвлүүлнэ.</span></div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div><strong>Best reaction / strongest answer</strong><span class="muted">Сүүлд хамгийн хөгжилтэй эсвэл хамгийн real хариултыг байрлуулна.</span></div>
-          </div>
-          <div class="step">
-            <div class="step-num">5</div>
-            <div><strong>Outro / CTA</strong><span class="muted">“Чиний хариулт юу вэ?” эсвэл “Part 2 хийх үү?” гэх мэт төгсгөл.</span></div>
-          </div>
-        </div>
-      </section>
+    // Attach local input handlers
+    body.querySelectorAll('[data-local-key]').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const key = inp.getAttribute('data-local-key');
+        const v = parseFloat(inp.value);
+        if (!isNaN(v) && v >= 0) {
+          state[key] = v;
+          renderAll();
+        }
+      });
+    });
 
-      <section class="section">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">03 • Formats</div>
-            <h2>Цуврал бичлэгийн хувилбарууд</h2>
-          </div>
-        </div>
-        <div class="grid-3">
-          <article class="version v1">
-            <div class="version-tag">Цуврал бичлэг 1 • Clean & Safe</div>
-            <h3>Энгийн, repeatable формат</h3>
-            <p class="muted">Эхний туршилт, тогтмол цуврал эхлүүлэхэд хамгийн тохиромжтой. Production complexity бага.</p>
-            <div class="meta-row">
-              <div class="pill">1 reel = 1 асуулт</div>
-              <div class="pill">6–10 хүн</div>
-              <div class="pill">15–25 sec</div>
-            </div>
-            <ul class="question-list">
-              <li>Хамгийн дургүй дасгал чинь юу вэ?</li>
-              <li>Cardio юу, weights үү?</li>
-              <li>Leg day юу, chest day юу?</li>
-              <li>Machine уу, free weight үү?</li>
-            </ul>
-            <div class="process">
-              <div class="step"><div class="step-num">1</div><div><strong>Intro</strong><span class="muted">“Royal Fitness members-аас асуув”</span></div></div>
-              <div class="step"><div class="step-num">2</div><div><strong>Main</strong><span class="muted">Нэг асуулт, олон хүний хариулт</span></div></div>
-              <div class="step"><div class="step-num">3</div><div><strong>Outro</strong><span class="muted">“Чиний хариулт юу вэ?”</span></div></div>
-            </div>
-          </article>
+    // Toggle local inputs bar
+    const localBar = body.querySelector('[data-local-bar]');
+    if (localBar) {
+      const title = localBar.querySelector('.local-inputs-title');
+      title.addEventListener('click', () => {
+        localBar.classList.toggle('open');
+      });
+    }
+  }
 
-          <article class="version v2">
-            <div class="version-tag">Цуврал бичлэг 2 • Fun & Engaging</div>
-            <h3>Илүү хөгжилтэй, comment татдаг</h3>
-            <p class="muted">Хоёр асуултын хослол ашиглаж динамик нэмнэ. View болон engagement өсгөхөд илүү тохиромжтой.</p>
-            <div class="meta-row">
-              <div class="pill">1 reel = 2 асуулт</div>
-              <div class="pill">4–6 хүн / асуулт</div>
-              <div class="pill">20–30 sec</div>
-            </div>
-            <ul class="question-list">
-              <li>Хамгийн дургүй дасгал чинь юу вэ?</li>
-              <li>Gym-ийн red flag юу вэ?</li>
-              <li>Leg day хэцүү юу, heartbreak хэцүү юу?</li>
-              <li>Чиний жинхэнэ rest time хэд вэ?</li>
-            </ul>
-            <div class="process">
-              <div class="step"><div class="step-num">1</div><div><strong>Intro</strong><span class="muted">“2 quick gym questions”</span></div></div>
-              <div class="step"><div class="step-num">2</div><div><strong>Main</strong><span class="muted">Q1 answers → transition → Q2 answers</span></div></div>
-              <div class="step"><div class="step-num">3</div><div><strong>Outro</strong><span class="muted">“Which answer was most real?”</span></div></div>
-            </div>
-          </article>
+  // ==================== GLOBAL DATA-CALC ====================
+  function renderGlobalCalcs(s, d) {
+    const globalValues = {
+      N_merchants: fmtInt(s.N),
+      L_display: '$' + fmtInt(s.L),
+      T_display: s.T.toString(),
+      r_display: fmtPct(s.r),
+      f_display: fmtPct(s.f),
+      p3_revshare_dollars: fmtMoney(d.GIR * (s.revShare3 / 100))
+    };
+    document.querySelectorAll('[data-calc]').forEach(el => {
+      const key = el.getAttribute('data-calc');
+      if (globalValues[key] !== undefined) {
+        el.textContent = globalValues[key];
+      }
+    });
+  }
 
-          <article class="version v3">
-            <div class="version-tag">Цуврал бичлэг 3 • Story & Community</div>
-            <h3>Brand feel, storytelling, premium vibe</h3>
-            <p class="muted">Цөөн хүнийг сонгоод 2–3 асуулт дараалан асууж mini-profile маягтай болгоно. Royal Fitness-ийн community image сайн гарна.</p>
-            <div class="meta-row">
-              <div class="pill">1 reel = 3 асуулт</div>
-              <div class="pill">3–5 хүн</div>
-              <div class="pill">25–40 sec</div>
-            </div>
-            <ul class="question-list">
-              <li>Яагаад workout хийдэг вэ?</li>
-              <li>Одоогийн goal чинь юу вэ?</li>
-              <li>Beginner хүнд өгөх нэг зөвлөгөө?</li>
-              <li>Gym-ийн red flag юу вэ?</li>
-            </ul>
-            <div class="process">
-              <div class="step"><div class="step-num">1</div><div><strong>Intro</strong><span class="muted">“More than just a workout”</span></div></div>
-              <div class="step"><div class="step-num">2</div><div><strong>Main</strong><span class="muted">Person A → Person B → Person C</span></div></div>
-              <div class="step"><div class="step-num">3</div><div><strong>Outro</strong><span class="muted">“Royal Fitness community”</span></div></div>
-            </div>
-          </article>
-        </div>
-      </section>
+  // ==================== RENDER ALL ====================
+  function renderAll() {
+    const s = state;
+    const d = derive(s);
 
-      <section class="section">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">04 • Production</div>
-            <h2>Зураг авалт, audio, edit-ийн нарийвчилсан шаардлага</h2>
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="card">
-            <h3>Interview style</h3>
-            <ul class="check-list">
-              <li>Vertical framing ашиглах</li>
-              <li>Цээжнээс дээш кадр хамгийн тохиромжтой</li>
-              <li>Асуултыг камераас гадна асуух</li>
-              <li>Хариултыг 1–2 өгүүлбэрт барихыг урьдчилж хэлэх</li>
-            </ul>
-          </div>
-          <div class="card">
-            <h3>Shot variety</h3>
-            <ul class="check-list">
-              <li>Dumbbell авах</li>
-              <li>Treadmill дээр алхах</li>
-              <li>Mirror walk-in shot</li>
-              <li>Barbell loading</li>
-              <li>Shoe tying / bottle shot</li>
-            </ul>
-          </div>
-          <div class="card">
-            <h3>Lighting</h3>
-            <ul class="check-list">
-              <li>Нүүр тод харагдах газар сонгох</li>
-              <li>Арын хурц гэрэлтэй цэгээс зайлсхийх</li>
-              <li>Нэг тогтмол булан сонговол series consistency үүснэ</li>
-            </ul>
-          </div>
-          <div class="card">
-            <h3>Audio</h3>
-            <ul class="check-list">
-              <li>Voice нь нэн тод сонсогдох ёстой</li>
-              <li>Music-ийг дараа нь нэмэх</li>
-              <li>Орчны чимээг бага зэрэг үлдээж болно</li>
-            </ul>
-          </div>
-        </div>
+    // Render each subpath
+    SUBPATHS.forEach(sp => {
+      const el = document.querySelector('[data-subpath="' + sp.code + '"]');
+      if (el) renderSubpath(el, sp, s, d);
+    });
 
-        <div class="grid-2" style="margin-top:16px;">
-          <div class="quote">
-            <h4>Intro text suggestions</h4>
-            <div class="chip-cloud">
-              <span class="chip soft-brand">Royal Fitness дээр random асуулт асуув</span>
-              <span class="chip soft-cyan">Gym people only</span>
-              <span class="chip soft-brand">Honest gym answers only</span>
-              <span class="chip soft-cyan">Royal Fitness community check-in</span>
-            </div>
-          </div>
-          <div class="quote">
-            <h4>Outro text suggestions</h4>
-            <div class="chip-cloud">
-              <span class="chip soft-green">Чиний хариулт юу вэ?</span>
-              <span class="chip soft-amber">Comment дээр хариулаарай</span>
-              <span class="chip soft-green">Part 2 хийх үү?</span>
-              <span class="chip soft-amber">Train. Laugh. Repeat.</span>
-            </div>
-          </div>
-        </div>
+    // Render global text
+    renderGlobalCalcs(s, d);
+  }
 
-        <div class="soft-card" style="margin-top:16px;">
-          <h3>Edit checklist</h3>
-          <ul class="check-list">
-            <li>Subtitle заавал оруулах</li>
-            <li>Question бүрийг screen дээр тод харуулах</li>
-            <li>Jump cut-ийг хурдан байлгах</li>
-            <li>Funniest эсвэл strongest answer-ийг сүүлд байрлуулах</li>
-            <li>Effect хэтрүүлэхгүй, clean aesthetic барих</li>
-          </ul>
-        </div>
-      </section>
+  // ==================== GLOBAL INPUTS ====================
+  function setupGlobalInputs() {
+    const keys = ['N', 'L', 'T', 'r', 'f', 'txnPerDay', 'avgTxn', 'mdr'];
+    keys.forEach(k => {
+      const el = document.getElementById('g_' + k);
+      if (!el) return;
+      el.value = defaults[k];
+      el.addEventListener('input', () => {
+        const v = parseFloat(el.value);
+        if (!isNaN(v) && v >= 0) {
+          state[k] = v;
+          renderAll();
+        }
+      });
+    });
 
-      <section class="section">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">05 • Sound direction</div>
-            <h2>Ая, sound direction, mood guide</h2>
-          </div>
-        </div>
-        <div class="grid-3">
-          <div class="card music-card good">
-            <h3>V1 mood</h3>
-            <p class="muted">Lyric багатай, casual gym vibe-тэй, voice-ийг дарахгүй beat тохиромжтой.</p>
-            <ul class="list">
-              <li>Upbeat house</li>
-              <li>Commercial fitness beat</li>
-              <li>Light phonk</li>
-            </ul>
-          </div>
-          <div class="card music-card good">
-            <h3>V2 mood</h3>
-            <p class="muted">Trendier, bounce feel-тэй, quick cut-ийг дэмждэг tempo хэрэгтэй.</p>
-            <ul class="list">
-              <li>Upbeat hip-hop instrumental</li>
-              <li>Fast pop edit beat</li>
-              <li>Reaction-friendly gym edit beat</li>
-            </ul>
-          </div>
-          <div class="card music-card good">
-            <h3>V3 mood</h3>
-            <p class="muted">Community болон brand feel гаргах, арай premium сонсогдох direction сонгоно.</p>
-            <ul class="list">
-              <li>Chill motivational beat</li>
-              <li>Soft house + drive feel</li>
-              <li>Modern cinematic fitness track</li>
-            </ul>
-          </div>
-        </div>
+    document.getElementById('globalReset').addEventListener('click', () => {
+      Object.keys(defaults).forEach(k => {
+        state[k] = defaults[k];
+        const el = document.getElementById('g_' + k);
+        if (el) el.value = defaults[k];
+      });
+      // Also reset any open local inputs
+      document.querySelectorAll('[data-local-key]').forEach(inp => {
+        const key = inp.getAttribute('data-local-key');
+        inp.value = defaults[key];
+      });
+      renderAll();
+    });
+  }
 
-        <div class="grid-2" style="margin-top:16px;">
-          <div class="card music-card warn">
-            <h3>Зайлсхийх дууны төрөл</h3>
-            <ul class="list">
-              <li>Lyrics хэт ихтэй</li>
-              <li>Voice-ийг дарах bass ихтэй</li>
-              <li>Хэт гунигтай эсвэл slow mood</li>
-              <li>Copyright эрсдэлтэй track</li>
-            </ul>
-          </div>
-          <div class="quote">
-            <h3>Sound balance</h3>
-            <p class="muted">Хариулт нь гол. Music бол support. Хэрэв answer тод сонсогдохгүй байвал reel-ийн үнэ цэнэ огцом буурна.</p>
-          </div>
-        </div>
-      </section>
+  // ==================== INIT ====================
+  document.addEventListener('DOMContentLoaded', () => {
+    setupGlobalInputs();
+    renderAll();
+  });
+})();
+</script>
 
-      <section class="section">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">06 • Content calendar starter</div>
-            <h2>Эхний 10 reel-д ашиглаж болох цуврал сэдвүүд</h2>
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="card">
-            <div class="chip-cloud">
-              <span class="chip">1. Хамгийн дургүй дасгал чинь юу вэ?</span>
-              <span class="chip">2. Cardio юу, weights үү?</span>
-              <span class="chip">3. Leg day юу, chest day юу?</span>
-              <span class="chip">4. Gym-ийн red flag юу вэ?</span>
-              <span class="chip">5. Workout хийхэд хамгийн hype болгодог дуу чинь юу вэ?</span>
-              <span class="chip">6. Beginner хүнд өгөх ганц зөвлөгөө?</span>
-              <span class="chip">7. Чиний жинхэнэ rest time хэд вэ?</span>
-              <span class="chip">8. Ганцаараа хийх үү, partner-тай хийх үү?</span>
-              <span class="chip">9. Өглөө workout уу, орой workout уу?</span>
-              <span class="chip">10. Одоогийн gym goal чинь юу вэ?</span>
-            </div>
-          </div>
-          <div class="quote">
-            <h3>Suggested first 3 reels</h3>
-            <ul class="check-list">
-              <li>Reel 1: Хамгийн дургүй дасгал чинь юу вэ?</li>
-              <li>Reel 2: Cardio юу, weights үү?</li>
-              <li>Reel 3: Gym-ийн red flag юу вэ?</li>
-            </ul>
-            <p class="muted">Эдгээр 3-аас аль нь илүү үзэлт, comment авч байгааг хараад дараагийн series-ээ тодорхойлно.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">07 • Example videos</div>
-            <h2>Жишээ бичлэгүүд</h2>
-          </div>
-        </div>
-        <div class="quote" style="margin-bottom:16px;">
-          <h3>Хэрэглэх зарчим</h3>
-          <p class="muted">Доорх хэсэгт YouTube-ийн inline embed-үүд болон Instagram-ийн embed/link card-ууд орсон. YouTube нь ихэнх орчинд page дотроо шууд тоглоно. Instagram embed нь зарим browser, privacy setting, эсвэл hosting орчноос шалтгаалаад хааяа ачааллахгүй байж болох тул тус бүр дээр backup link бас оруулсан.</p>
-        </div>
-
-        <div class="grid-3">
-          <div class="card">
-            <h3>YouTube • Random gym questions</h3>
-            <div style="position:relative;padding-top:177.77%;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#000;">
-              <iframe src="https://www.youtube.com/embed/iXUiKvrIPA8" title="Asking gym members random questions" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
-            </div>
-            <p class="muted" style="margin:12px 0 0;">Quick-answer format, short cuts, simple public-gym interview style.</p>
-          </div>
-
-          <div class="card">
-            <h3>YouTube • Gym trivia format</h3>
-            <div style="position:relative;padding-top:177.77%;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#000;">
-              <iframe src="https://www.youtube.com/embed/tq_lygriOhM" title="Asking Gym Members Trivia Questions" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
-            </div>
-            <p class="muted" style="margin:12px 0 0;">Question-on-screen + fast response structure-ийг харахад тохиромжтой.</p>
-          </div>
-
-          <div class="card">
-            <h3>YouTube • Awkward/funny Q&amp;A style</h3>
-            <div style="position:relative;padding-top:177.77%;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#000;">
-              <iframe src="https://www.youtube.com/embed/UliCCjom_hk" title="I Asked Gym Members Simple Questions. It Got Awkward Fast" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
-            </div>
-            <p class="muted" style="margin:12px 0 0;">Reaction-based pacing, funny finish answer, audience-retention hook-д хэрэгтэй.</p>
-          </div>
-        </div>
-
-        <div class="grid-2" style="margin-top:16px;">
-          <div class="card">
-            <h3>Instagram • Asking gym members random questions</h3>
-            <div style="position:relative;padding-top:177.77%;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#f3f6fb;">
-              <iframe src="https://www.instagram.com/reel/DVqCmz-DiY3/embed" title="Instagram reel example 1" style="position:absolute;inset:0;width:100%;height:100%;border:0;" loading="lazy"></iframe>
-            </div>
-            <div class="button-row" style="margin-top:12px;">
-              <a class="button" href="https://www.instagram.com/reel/DVqCmz-DiY3/" target="_blank" rel="noopener noreferrer">Instagram дээр нээх</a>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>Instagram • Easy fitness questions</h3>
-            <div style="position:relative;padding-top:177.77%;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#f3f6fb;">
-              <iframe src="https://www.instagram.com/reel/C9h12aFJfCA/embed" title="Instagram reel example 2" style="position:absolute;inset:0;width:100%;height:100%;border:0;" loading="lazy"></iframe>
-            </div>
-            <div class="button-row" style="margin-top:12px;">
-              <a class="button" href="https://www.instagram.com/reel/C9h12aFJfCA/" target="_blank" rel="noopener noreferrer">Instagram дээр нээх</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid-2" style="margin-top:16px;">
-          <div class="card">
-            <h3>Instagram • What are you listening to right now?</h3>
-            <div style="position:relative;padding-top:177.77%;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#f3f6fb;">
-              <iframe src="https://www.instagram.com/reel/DJ7iw1DJNi8/embed" title="Instagram reel example 3" style="position:absolute;inset:0;width:100%;height:100%;border:0;" loading="lazy"></iframe>
-            </div>
-            <div class="button-row" style="margin-top:12px;">
-              <a class="button" href="https://www.instagram.com/reel/DJ7iw1DJNi8/" target="_blank" rel="noopener noreferrer">Instagram дээр нээх</a>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>Instagram • This or that with gym members</h3>
-            <div style="position:relative;padding-top:177.77%;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#f3f6fb;">
-              <iframe src="https://www.instagram.com/reel/DVsoBJfyi2v/embed" title="Instagram reel example 4" style="position:absolute;inset:0;width:100%;height:100%;border:0;" loading="lazy"></iframe>
-            </div>
-            <div class="button-row" style="margin-top:12px;">
-              <a class="button" href="https://www.instagram.com/reel/DVsoBJfyi2v/" target="_blank" rel="noopener noreferrer">Instagram дээр нээх</a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">08 • Recommendation</div>
-            <h2>Практик дараагийн алхам</h2>
-          </div>
-        </div>
-        <div class="cta-box">
-          <div>
-            <h3 style="margin:0 0 8px;">Хамгийн зөв workflow</h3>
-            <p class="muted" style="margin:0;">Эхлээд V1-ээр 3 reel хийж тестэл. Дараа нь хамгийн сайн reaction авсан асуултуудаа V2-р өргөжүүл. Сүүлд Royal Fitness-ийн branding-тай V3 цуврал болговол хамгийн хүчтэй бүтэц болно.</p>
-          </div>
-          <div class="button-row">
-            <span class="button primary">Цуврал 1 → Test</span>
-            <span class="button">Цуврал 2 → Engage</span>
-            <span class="button">Цуврал 3 → Brand</span>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <div class="footer">Royal Fitness Reel Brief • Light UI • Single-flow layout • Mobile responsive</div>
-  </div>
 </body>
 </html>
